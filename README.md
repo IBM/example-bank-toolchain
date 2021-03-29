@@ -1,4 +1,4 @@
-# Using IBM Code Risk Analyzer with IBM DevOps Toolchains and OpenShift 
+# Deploy application on OpenShift securely using IBM Code Risk Analyzer with IBM Cloud Toolchain 
 
 In this code pattern, we show how to deploy a microservices based back-end in OpenShift 4.5 using IBM Cloud Toolchain CI/CD service. As part of the release of IBM Cloud for Financial Services (link tbd) support for containerized applications, this code pattern shows how to use IBM Toolchain to create a Tekton pipeline that integrates IBM Code Risk Analyzer (CRA), IBM Container Registry and Vulnerability Advisor. CRA runs an infrastructure and deployment artifact scan against your GitHub repository as part of the an overall DevSecOps system.
 

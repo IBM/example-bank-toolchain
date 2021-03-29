@@ -1,0 +1,1236 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Example Bank - Microservice Example on OpenShift V4</title>
+    <meta name="description" content="A simulated mobile app that triggers a JEE backend on Kube">
+    <meta name="author" content="Anton McConville">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style/loyalty.css?v=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body class="loyalty">
+    <div class="container">
+        <div class="navigation">
+            <div class="titlebar">
+                <div class="logo"><img class="icon" src="./images/loyaltylogo.svg"></div>
+                <div class="title">Example Bank</div>
+            </div>
+            <div class="about">A SIMULATED, INTERACTIVE MOBILE PHONE
+                APP COMMUNICATING WITH JEE MICROPROFILE
+                MICROSERVICES RUNNING ON AN IBM CLOUD
+                OPENSHIFT 4 INSTANCE.
+            </div>
+            <asset-element link="https://developer.ibm.com/articles/intro-to-openshift-4/" assetimage="./images/lightbulb.svg" text="Background"></asset-element>
+            <asset-element link="https://github.com/IBM/loyalty#architecture" assetimage="./images/cloud.svg" text="Cloud Architecture"></asset-element>
+            <asset-element link="https://developer.ibm.com/articles/threat-modeling-microservices-openshift-4/" assetimage="./images/threat.svg" text="Introduction to threat modelling"></asset-element>
+            <asset-element link="https://developer.ibm.com/tutorials/operator-hub-openshift-4-operators-ibm-cloud/" assetimage="./images/flash.svg" text="Fun with Operators"></asset-element>
+            <asset-element link="https://developer.ibm.com/patterns/privacy-backend-loyalty-app-openshift-4/" assetimage="./images/secure.svg"
+                text="Build a microservice-based backend on OpenShift 4"></asset-element>
+            <asset-element link="https://developer.ibm.com/patterns/microservices-with-the-openshift-service-mesh/" assetimage="./images/istio.svg" text="Scaling secure communications with service mesh"></asset-element>
+            <asset-element link="https://developer.ibm.com/tutorials/build-serverless-nodejs-applications-with-the-openshift-serverless-operator/" assetimage="./images/programming.svg" text="Extending apps with OpenShift Serverless"></asset-element>
+            <asset-element link="https://developer.ibm.com/tutorials/tekton-pipeline-deploy-a-mobile-app-backend-openshift-4/" assetimage="./images/deploy-rules.svg" text="Building OpenShift Pipelines">
+            </asset-element>
+            <!-- asset-element assetimage="./images/admin.svg" text="Admin view"></asset-element> -->
+        </div>
+        <phone-element id="phoneview"></phone-element>      
+        <script>
+            var supportTest = 'customElements' in window;
+            console.log('supports web components = ' + supportTest);
+            if(supportTest == false){
+                window.alert('If you see this alert, it means this example is not compatible with your browser. This example uses Web Components - a technology supported in the latest versions of Firefox, Chrome and Safari. Please update your browser to the latest release.');
+            }
+        </script>      
+        </div>
+    </div>
+</body>
+
+<template id="phone">
+    <style>   
+    .frame {
+    height: 100%;
+    width: 300px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 4px solid var(--loyalty-phone-color);
+    box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
+    /* border-radius: 20px;
+    background: #FFFFFF;
+    box-shadow:  31px 31px 71px #7d7d7d, 
+                 -31px -31px 71px #ffffff; */
+    }
+
+.sensors {
+    flex-direction: row;
+    min-height:4%;
+    max-height:4%;
+    width: 50%;
+    height: 18px;
+    background: var(--loyalty-phone-color);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view {
+    height: 100%;
+    width:100%;
+    overflow: hidden;
+}
+
+.viewtitle {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.mobilenav {
+    min-height: 10%;
+    max-height:10%;
+    width: 100%;
+    display: none;
+    /* visibility: hidden; */
+    /* background: aliceblue; */
+}
+
+.sensor{
+    height: 4px;
+    width: 4px;
+    border-radius: 4px;
+    background:var(--loyalty-sensor-color);
+    margin: 4px;
+
+}
+
+.basebar{
+    min-height:10%;
+    max-height:10%;
+    width:100%;
+    background: var(--loyalty-phone-color);
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+}
+
+.basebutton{
+    height: 40px;
+    width: 40px;
+    border-radius: 40px;
+    border: 2px solid white;
+    background: var(--loyalty-phone-color);
+    outline:none;
+}
+    </style>
+   
+    <div class="frame">
+        <div class="sensors">
+            <div class="sensor"></div>
+            <div class="sensor"></div>
+            <div class="sensor"></div>
+            <div class="sensor"></div>
+        </div>
+        <div id="mobileview" class="view">
+            <homescreen-element></homescreen-element>
+        </div>
+        <navigation-element id="mobilenavigation" class="mobilenav"></navigation-element>
+        <div class="basebar">
+            <button class="basebutton" id="basebutton"></button>
+        </div>
+    </div>
+</template>
+
+<template id="tile">
+    <style>  
+    .tile{
+        height: 100px;
+        width: 100px;
+        margin: 16px;
+        margin-top:10px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        border: 2px solid var(--loyalty-divide-color);
+        border-radius: 6px;
+        outline: none;
+        background: white;
+    }
+
+    .tile:hover{
+        border: 2px solid var(--loyalty-highlight-color);
+    }
+
+    .buttonImage{
+        height:74px;
+        width:74px;
+    }
+    </style>
+    <button id="tileButton" class="tile">
+        <img class="buttonImage" id="buttonImage">
+    </button>
+</template>
+
+<template id="homescreen">
+    <style>  
+
+    .homescreen{
+
+    }
+
+    .apptiles{
+        /* margin-top:20px; */
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .notificationarea{
+        height:30px;
+        width:100%;
+        margin-top:10px;display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        /* background: pink; */
+    }
+
+    .notification{
+        width: 230px;
+        height: 100%;
+        border-radius: 4px;
+        background: var(--loyalty-highlight-color);
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    </style>
+    <div class="homescreen">
+        <div id="notificationarea" class="notificationarea">
+            <!-- <div class="notification">THIS IS A TEST</div> -->
+        </div>
+        <div id="APPTILES" class="apptiles">
+            <tile-element tileimage="./images/bank.svg" tiletext="bank"></tile-element>
+            <tile-element tileimage="./images/rideshare.svg" tiletext="ride" base=10 ceiling=30></tile-element>
+            <tile-element tileimage="./images/cafe.svg" tiletext="cafe" base=5 ceiling=20></tile-element>  
+            <tile-element tileimage="./images/groceries.svg" tiletext="groceries" base=15 ceiling=200></tile-element>
+            <tile-element tileimage="./images/restaurant.svg" tiletext="delivery" base=20 ceiling=60></tile-element>
+            <tile-element tileimage="./images/fuel.svg" tiletext="fuel" base=30 ceiling=100></tile-element>
+        </div>
+    </div>
+</template>
+
+<template id="welcomeview">
+    <style>
+        .welcomeview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .city {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .citylogo {
+            padding-top: 20px;
+            height: 140px;
+        }
+
+        .cityname {
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 10px;
+            font-family: inherit;
+        }
+
+        .blurb {
+            font-size: 10px;
+            margin: 20px;
+            width: 120px;
+            color: var(--loyalty-phone-color);
+        }
+
+        .usernameinput {
+            width: 120px;
+            text-align: center;
+            font-family: inherit;
+            height: 28px;
+            margin-top: 10px;
+            border: 2px solid #ffe5cc;
+            background: #ffe5cc;
+            border: 2px solid var(--loyalty-highlight-color);
+            background:var(--loyalty-highlight-color);
+        }
+
+        .signin {
+            width: 120px;
+            height: 28px;
+            border-radius: 4px;
+            background: var(--loyalty-button-color);
+            color: white;
+            font-weight: bold;
+            border: 2px solid var(--loyalty-button-color);
+            margin-top: 10px;
+            outline: 0;
+            font-size: 11px;
+        }
+
+        .signup {
+            width: 120px;
+            height: 28px;
+            border-radius: 4px;
+            color: var(--loyalty-sensor-color);
+            font-weight: bold;
+            border: 2px solid var(--loyalty-sensor-color);
+            margin: 10px;
+            outline: 0;
+            background: white;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .viewtitle {
+            display: flex;
+            flex-direction: row;
+            height: 20px;
+            padding-top: 20px;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .or{
+            font-size: 12px;
+            padding-top: 10px;
+            font-weight: bold;
+            color: var(--loyalty-sensor-color);
+        }
+    </style>
+    <div class="welcomeview">
+        <div class="viewtitle">EXAMPLE BANK</div>
+        <div class="city">
+            <img class="citylogo" src="../images/banklogo.svg">
+            <!-- <div class="cityname">New York</div> -->
+        </div>
+        <select class="usernameinput" id="usernameselect">
+        </select>
+        <button class="signin" id="signin">SIGN IN</button>
+        <div class="or">OR</div>
+        <button class="signup" onclick="loyalty.signup()">SIGN UP</button>
+        <div class="blurb">THIS IS A SIMULATED BANKING APP TO EXPLORE PRIVACY CONSIDERATIONS WHEN DEVELOPING CLOUD
+            APPLICATIONS. FOR DEMO PURPOSES ONLY</div>
+    </div>
+</template>
+
+<template id="loginview">
+    <style>
+        .loginview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .identity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .identityblock {
+            display: flex;
+            flex-direction: row;
+            height: 30px;
+            width:80%;
+        }
+
+        .idpart {
+            display: flex;
+            flex-direction: row;
+            align-items: left;
+            /* justify-content: left; */
+            align-content: left;
+            width: 75px;
+            font-size: 12px;
+            /* text-transform: uppercase; */
+            color: #D8D8D8;
+            font-weight: bold;
+        }
+
+        .idinfo {
+            display: flex;
+            flex-direction: row;
+            align-items: left;
+            /* justify-content: left; */
+            align-content: left;
+            width: 175px;
+            font-size: 12px;
+            /* text-transform: uppercase; */
+            color: #494A4B;
+            font-weight: bold;
+        }
+
+        .signup {
+            width: 120px;
+            height: 28px;
+            border-radius: 4px;
+            color: var(--loyalty-sensor-color);
+            font-weight: bold;
+            border: 2px solid var(--loyalty-sensor-color);
+            margin: 10px;
+            outline: 0;
+            background: white;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .signup:disabled {
+            background: #dddddd;
+        }
+
+        .viewtitle {
+            display: flex;
+            flex-direction: row;
+            height: 20px;
+            padding-top: 20px;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .gdprcheck {
+            display: flex;
+            flex-direction: row;
+            width: 160px;
+        }
+
+        .checktext {
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .checkbox {
+            margin-right: 10px;
+        }
+
+        .tos {
+            font-size: 10px;
+            margin: 20px;
+            width: 160px;
+        }
+    </style>
+    <div class="loginview">
+        <div class="viewtitle">Create Account</div>
+        <div class="identity">
+            <div class="identityblock">
+                <label class="idpart">First Name</label>
+                <div class="idinfo" id="firstname" contenteditable="true"></div>
+            </div>
+
+            <div class="identityblock">
+                <label class="idpart">Surname</label>
+                <div class="idinfo" id="surname" contenteditable="true"></div>
+            </div>
+
+            <div class="identityblock">
+                <label class="idpart">Email</label>
+                <div class="idinfo" id="email"></div>
+            </div>
+
+            <div class="identityblock">
+                <label class="idpart">username</label>
+                <div class="idinfo" id="username"></div>
+            </div>
+
+            <div class="identityblock">
+                <label class="idpart">Password</label>
+                <div class="idinfo" id="password"></div>
+            </div>
+        </div>
+
+        <div class="gdprcheck">
+            <input class="checkbox" type="checkbox" id="gdprcheck" name="gdpr" value="false">
+            <label class="checktext">I CONSENT TO MY DATA BEING USED TO GATHER METRICS ABOUT EXAMPLE LOYALTY EVENTS.
+                EXAMPLE LOYALTY WILL NOT SHARE THIS DATA.</label>
+        </div>
+
+        <button class="signup" id="createAccountButton" disabled=true>Create Account</button>
+
+        <div class="tos">BY CREATING AN ACCOUNT
+            YOU AGREE TO EXAMPLE
+            LOYALTY’S TERMS OF SERVICE</div>
+    </div>
+</template>
+
+<template id="accountview">
+    <style>
+        .accountview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .identity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .identityblock {
+            display: flex;
+            padding-top: 20px;
+            margin-left: 10px;
+            flex-direction: row;
+            height: 30px;
+            width: 80%;
+        }
+
+        .idpart {
+            display: flex;
+            flex-direction: row;
+            align-items: left;
+            /* justify-content: left; */
+            align-content: left;
+            width: 100px;
+            font-size: 14px;
+            text-transform: uppercase;
+            color:var(--loyalty-phone-color);
+            font-weight: bold;
+        }
+
+        .idinfo {
+            display: flex;
+            flex-direction: row;
+            align-items: left;
+            /* justify-content: left; */
+            align-content: left;
+            width: 175px;
+            font-size: 14px;
+            text-transform: uppercase;
+            color:var(--loyalty-text-color);
+            font-weight: bold;
+        }
+
+        .signup {
+            width: 120px;
+            height: 28px;
+            border-radius: 4px;
+            color: var(--loyalty-sensor-color);
+            font-weight: bold;
+            border: 2px solid var(--loyalty-sensor-color);
+            margin: 10px;
+            outline: 0;
+            background: white;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .logout {
+            width: 70px;
+            height: 30px;
+            border-radius: 4px;
+            background: #1c87c9;
+            color: white;
+            font-weight: bold;
+            border: none;
+            margin: 10;
+            outline: 0;
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+
+        .viewtitle {
+            display: flex;
+            flex-direction: row;
+            height: 20px;
+            padding-top: 20px;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .countstack {
+            display: flex;
+            flex-direction: column;
+            width: 80px;
+            margin: 10px;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+        }
+
+        .count {
+            font-size: 50px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .data {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .countlabel {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .dashboard {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+            width: 100%;
+
+            border-bottom: 1px solid var(--loyalty-divide-color);
+        }
+
+        .buttons, .buttonslogout {
+            display: flex;
+            margin-top: 10px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttonslogout {
+            margin-top: 0px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .accountbuttons {
+            width: 70px;
+            height: 30px;
+            border-radius: 4px;
+            background: var(--loyalty-button-color);
+            color: white;
+            font-weight: bold;
+            border: none;
+            margin: 10px;
+        }
+
+        .account{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .accountdetails{
+            display: flex;
+            flex-direction: column;
+            justify-items: center;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            width: 100%;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            /* border-bottom: 2px solid var(--loyalty-divide-color); */
+            background: var(--loyalty-highlight-color);
+        }
+    </style>
+
+    <div class="accountview">
+       
+        <div class="account">
+            <div class="viewtitle">ACCOUNT</div>
+            <div class="accountdetails">
+            <div class="identityblock">
+                <label class="idpart">Name:</label>
+                <div class="idinfo" id="name"></div>
+            </div>
+            <div class="identityblock">
+                <label class="idpart">Joined:</label>
+                <div class="idinfo" id="surname">2019</div>
+            </div>
+        </div>
+            <div class="buttons">
+                <!-- <button class="signup" id="createAccountButton" onclick="create()">Edit</button>
+                <button class="signup" id="createAccountButton" onclick="create()">Download</button> -->
+                <button class="signup" id="deleteAccountButton">Delete</button>
+                <button class="signup" id="logoutAccountButton">Logout</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="navigationbutton">
+    <style>
+
+    .navbutton {
+            margin: 10px;
+            border: none;
+            width: 60px;
+            height: 40px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            justify-items: center;
+            align-items: center;
+            align-content: center;
+            outline: none;
+            background: white;
+        }
+
+        .navimg {
+            height: 36px;
+        }
+
+    </style>
+    <button id="navbutton"class="navbutton">
+        <img id="navbuttonimage" class="navimg">
+    </button>
+</template>
+
+<template id="navigationview">
+    <style>
+        .navigationview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation {
+            height: 80px;
+            width: 100%;
+            /* background: aliceblue; */
+            border-top: 2px solid var(--loyalty-divide-color);
+        }
+
+
+
+        .iconrow {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+        }
+
+        .navbutton {
+            margin: 10px;
+            border: none;
+            width: 60px;
+            height: 40px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            justify-items: center;
+            align-items: center;
+            align-content: center;
+            outline: none;
+        }
+    </style>
+    <div class="navigation">
+        <div id="buttonrow" class="iconrow">
+            <navigationbutton-element id="transactions" imagename="transactions" viewname="transactions" mode="active"></navigationbutton-element>
+            <navigationbutton-element id="statistics" imagename="statistics" viewname="statistics" mode="inactive"></navigationbutton-element>
+            <navigationbutton-element id="account" imagename="account" viewname="account" mode="inactive"></navigationbutton-element>
+        </div>
+    </div>
+</template>
+
+<template id="transaction">
+
+    <style>
+        .transactiondata{
+
+        }
+
+        .transactionlist{
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .transactionitem{
+            display: flex;
+            flex-direction: row;
+            padding-top: 10px;
+            color:var(--loyalty-text-color);
+        }
+
+        .transactionvendor{
+            display: flex;
+            flex-direction: column;
+            min-width: 100px;
+        }
+
+        .vendorname{
+
+        }
+
+        .transactiondate{
+            font-size:10px;
+            padding-top: 2px;
+            font-weight: normal;
+        }
+
+        .transactionamount{
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            justify-items: center;
+            min-width: 70px;
+        }
+
+        .transactionpoints{
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            justify-items: center;
+            min-width: 70px;
+        }
+    </style>
+
+    <div class="transactionitem">
+        <div class="transactionvendor">
+            <label id="vendor" class="vendorname"></label>
+            <label id="date" class="transactiondate"></label>
+        </div>
+        <label id="amount" class="transactionamount"></label>
+        <label id="points" class="transactionpoints"></label>
+    </div>
+</template>
+
+
+<template id="transactions">
+    <style>
+        .viewtitle {
+            display: flex;
+            flex-direction: row;
+            height: 20px;
+            padding-top: 20px;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .transactions{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .transactionbox{
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .transactionsummary{
+            display: flex;
+            flex-direction: column;
+            justify-items: center;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            width: 100%;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            /* border-bottom: 2px solid var(--loyalty-divide-color); */
+            background:var(--loyalty-highlight-color);
+        }
+
+        .transactionsplit{
+            display: flex;
+            flex-direction: row;
+            width: 80%;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+        }
+
+        .transactionsummarybox{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            justify-items: center;
+            width:50%;
+            height:100%;
+        }
+
+        .transactionsummaryboxleft{
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: flex-start;
+            justify-items: center;
+            width:50%;
+            height:100%;
+        }
+
+        .transactionsummaryboxright{
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: flex-end;
+            justify-items: center;
+            width:50%;
+            height:100%;
+        }
+
+        .transactiontotalamount{
+            font-size:20px;
+            font-weight: bold;
+            color:var(--loyalty-phone-color);
+        }
+
+        .transactiontotallabel{
+            margin-top:5px;
+            font-size: 10px;
+            font-weight: bold;
+            color:var(--loyalty-text-color);
+        }
+
+        .transactiontotallabelleft{
+            margin-top:5px;
+            font-size: 10px;
+            font-weight: bold;
+            align-self:flex-start;
+            color:var(--loyalty-text-color);
+        }
+
+        .transactiontotallabelright{
+            margin-top:5px;
+            font-size: 10px;
+            font-weight: bold;
+            align-self: flex-end;
+            color:var(--loyalty-text-color);
+        }
+
+        .transactiontotal{
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transactionlist{
+            display:flex;
+            flex-direction: column;
+        }
+
+        .transactionheader{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            height: 30px;
+            font-weight: bold;
+            font-size: 12px;
+            align-items: center;
+            justify-items: center;
+            color: var(--loyalty-phone-color);
+            width: 100%;
+            border-bottom: 2px solid var(--loyalty-highlight-color);
+        }
+
+        .transactionheaderlabel{
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            justify-items: center;
+            min-width: 70px;
+        }
+
+        .transactionheadervendorlabel{
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
+            align-items: center;
+            justify-items: center;
+            min-width: 100px;
+        }
+
+        .transactionlist{
+            font-size: 12px;
+            font-weight: bold;
+            overflow: scroll;
+            height: 265px;
+        }
+
+        .transactionitem{
+            display: flex;
+            flex-direction: row;
+            padding-top: 10px;
+            color:var(--loyalty-text-color);
+        }
+
+        .transactionvendor{
+            display: flex;
+            flex-direction: column;
+            min-width: 100px;
+        }
+
+        .transactiondate{
+            font-size:10px;
+            padding-top: 2px;
+            font-weight: normal;
+        }
+
+        .transactionamount{
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            justify-items: center;
+            min-width: 70px;
+        }
+
+        .transactionpoints{
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            justify-items: center;
+            min-width: 70px;
+        }
+
+        .transactionblock{
+            width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+        }
+
+    </style>
+    <div class="viewtitle">TRANSACTIONS</div>
+    <div class="transactions">
+        <div class="transactionbox">
+            <div class="transactionsummary">
+                <div class="transactionsplit">
+                    <div class="transactionsummaryboxleft">
+                        <div class="transactiontotal">
+                            <div id="BALANCE" class="transactiontotalamount"></div>
+                            <label class="transactiontotallabelleft">BALANCE</label>
+                        </div>
+                    </div>
+                    <div class="transactionsummaryboxright">
+                        <div class="transactiontotal">
+                            <div id="POINTS" class="transactiontotalamount"></div>
+                            <label  class="transactiontotallabelright">POINTS</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="transactionblock">
+            <div class="transactionheader">
+                <label class="transactionheadervendorlabel">VENDOR</label>
+                <label class="transactionheaderlabel">AMOUNT</label>
+                <label class="transactionheaderlabel">POINTS</label>
+            </div>
+            <div class="transactiondata">
+                <div id="TRANSACTIONLIST" class="transactionlist"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+<template id="statistics">
+    <style>
+    .viewtitle {
+        display: flex;
+        flex-direction: row;
+        height: 50px;
+        justify-content: center;
+        align-items: center;
+        text-transform: uppercase;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .analysisbox{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        width: 260px;
+        height:260px;
+    }
+
+    </style>
+    <div class="viewtitle">Analysis</div>
+    <div class="analysisbox">
+        <div class="chart">
+            <canvas id="myChart" width="200" height="200"></canvas>
+        </div>
+    </div>
+</template>
+
+
+<template id="assetlink">
+    <style>
+        .logo {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .icon {
+            width: 30px;
+            height: 30px;
+        }
+
+        .linkbar {
+            display: flex;
+            flex-direction: row;
+            margin-top: 10px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .linkbar:hover{
+            background: var(--loyalty-highlight-color);
+        }
+
+        .linktext {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+            margin: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 12px;
+        }
+    </style>
+    <div class="linkbar">
+        <div class="logo"><img id="assetimage" class="icon" src=""></div>
+        <div class="linktext" id="text"></div>
+    </div>
+</template>
+
+<template id="loadingspinner">
+    <style>
+        @keyframes spinner {
+            0% {
+                transform: translate3d(-50%, -50%, 0) rotate(0deg);
+            }
+            100% {
+                transform: translate3d(-50%, -50%, 0) rotate(360deg);
+            }
+        }
+        .spin::before {
+            animation: 1.5s linear infinite spinner;
+            animation-play-state: inherit;
+            border: solid 5px #cfd0d1;
+            border-bottom-color: #1c87c9;
+            border-radius: 50%;
+            content: "";
+            height: 40px;
+            width: 40px;
+            position: absolute;
+            transform: translate3d(-50%, -50%, 0);
+            will-change: transform;
+        }
+        .spin {
+            padding-top: 260px;
+        }
+        .spinner-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .status {
+            font-size: 14px;
+            font-family: inherit;
+            margin-top: 40px;
+        }
+      </style>
+      <div class="spinner-container">
+        <div class="spin"></div>
+        <div class="status" id="status">Loading</div>
+      </div>
+</template>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-174204989-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-174204989-1');
+</script>
+
+<script src="./javascript/moment.js"></script>
+<script src="./javascript/clientHelpers/demoaccounts.js"></script>
+<script src="./javascript/clientHelpers/libertyclient.js"></script>
+<script src="./javascript/clientHelpers/localstoragehelper.js"></script>
+<script src="./javascript/phone.js"></script>
+<script src="./javascript/tile.js"></script>
+<script src="./javascript/home.js"></script>
+<script src="./javascript/loyalty.js"></script>
+<script src="./javascript/welcome.js"></script>
+<script src="./javascript/login.js"></script>
+<script src="./javascript/account.js"></script>
+<script src="./javascript/navigationbutton.js"></script>
+<script src="./javascript/navigation.js"></script>
+<script src="./javascript/transaction.js"></script>
+<script src="./javascript/transactions.js"></script>
+<script src="./javascript/statistics.js"></script>
+<script src="./javascript/asset.js"></script>
+<script src="./javascript/spinner.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+</html>

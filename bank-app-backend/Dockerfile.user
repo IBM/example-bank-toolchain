@@ -1,0 +1,26 @@
+FROM maven:3.5-jdk-8 as BUILD
+USER root
+
+RUN mkdir -p /usr/src/app/common
+RUN mkdir -p /usr/src/app/user-service
+COPY pom.xml /usr/src/app
+ADD common /usr/src/app/common
+ADD transaction-service /usr/src/app/transaction-service
+ADD integration-tests /usr/src/app/integration-tests
+ADD user-service /usr/src/app/user-service
+
+WORKDIR /usr/src/app
+RUN mvn -pl :user-service -am package
+WORKDIR /usr/src/app/user-service
+
+FROM open-liberty:19.0.0.12-kernel-java8-openj9
+
+USER root
+RUN apt-get update && apt-get upgrade -y e2fsprogs libgnutls30 libgcrypt20 libsasl2-2
+USER 1001
+
+COPY --from=BUILD --chown=1001:0 /usr/src/app/user-service/src/main/liberty/config/ /config/
+COPY --from=BUILD --chown=1001:0 /usr/src/app/user-service/src/main/resources/security/ /config/resources/security/
+COPY --from=BUILD --chown=1001:0 /usr/src/app/user-service/target/*.war /config/apps/
+COPY --from=BUILD --chown=1001:0 /usr/src/app/user-service/target/jdbc/* /config/jdbc/
+RUN configure.sh

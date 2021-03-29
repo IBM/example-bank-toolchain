@@ -1,0 +1,486 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cd-pipeline
+spec:
+  params:
+    - name: repository
+      description: the git repo
+    - name: branch
+      description: the branch for the git repo
+    - name: git-access-token
+      description: illustrate alternate way to provide/get git access token
+      default: ""
+    - name: registry-region
+      description: the container registry region
+    - name: registry-namespace
+      description: the container registry namespace
+    # - name: image-name
+    #   description: the image name
+    - name: path-to-dockerfile
+      default: "."
+    - name: pipeline-debug
+      default: "0"
+    - name: directory
+      default: "."
+    - name: cluster-region
+      default: ""
+    - name: resource-group
+    - name: cluster-name
+    - name: dev-cluster-namespace
+    - name: deployment-file
+      description: file containing the kubernetes deployment definition
+      default: deployment.yml
+    - name: transaction-service-image-name
+    - name: user-service-image-name
+    - name: simulator-service-image-name
+    - name: path-to-transaction-svc-deployment
+    - name: path-to-user-svc-deployment
+    - name: path-to-transaction-service-dockerfile
+    - name: path-to-user-service-dockerfile
+    - name: tx-dockerfile
+    - name: user-dockerfile
+  workspaces:
+    - name: pipeline-ws
+  
+  tasks:
+    - name: extract-repository-url
+      taskRef:
+        name: toolchain-extract-value
+      params:
+        - name: expression
+          # if a params.repository is given, it takes precedence
+          value: '. as $toolchain | ["$(params.repository)"] | if .[0]=="" then $toolchain | .services[] | select(.toolchain_binding.name=="repo") | .dashboard_url else .[0] end'
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+    
+    - name: git-clone-task
+      taskRef:
+        name: git-clone-repo
+      workspaces:
+        - name: output
+          workspace: pipeline-ws
+      params:
+        - name: repository
+          value: $(params.repository)
+        - name: branch
+          value: $(params.branch)
+        - name: git-access-token
+          value: $(params.git-access-token)
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+
+    - name: list-code
+      taskRef:
+        name: list-code
+      runAfter:
+        - git-clone-task
+      params:
+        - name: directory
+          value: $(params.directory)
+      workspaces:
+        - name: response
+          workspace: pipeline-ws
+
+    - name: containerize-transaction-service
+      runAfter: 
+        - list-code
+      taskRef:
+        name: icr-containerize
+      params:
+        - name: continuous-delivery-context-secret
+          value: "secure-properties"
+        - name: container-registry-apikey-secret-key
+          value: "apikey"
+        - name: registry-region
+          value: $(params.registry-region)
+        - name: registry-namespace
+          value: $(params.registry-namespace)
+        - name: image-name
+          value: $(params.transaction-service-image-name)
+        - name: path-to-context
+          value: $(params.path-to-transaction-service-dockerfile)
+        - name: path-to-dockerfile
+          value: $(params.path-to-transaction-service-dockerfile)
+        - name: dockerfile
+          value: $(params.tx-dockerfile)
+        # - name: additional-tags
+        #   value: latest,1.0.0-$(tasks.git-clone-task.results.git-branch)-$(tasks.git-clone-task.results.git-commit)
+        - name: additional-tags-script
+          value: >
+              # Minting image tag using format:
+              BUILD_NUMBER-BRANCH-COMMIT_ID-TIMESTAMP
+
+              # e.g. 3-master-50da6912-20181123114435
+
+              # (use build number as first segment to allow image tag as a patch
+              release name according to semantic versioning)
+
+              GIT_BRANCH="$(tasks.git-clone-task.results.git-branch)"
+
+              GIT_COMMIT="$(tasks.git-clone-task.results.git-commit)"
+
+              TIMESTAMP=$( date -u "+%Y%m%d%H%M%S")
+
+              IMAGE_TAG=${TIMESTAMP}
+
+              if [ ! -z "${GIT_COMMIT}" ]; then
+                GIT_COMMIT_SHORT=$( echo ${GIT_COMMIT} | head -c 8 )
+                IMAGE_TAG=${GIT_COMMIT_SHORT}-${IMAGE_TAG}
+              fi
+
+              if [ ! -z "${GIT_BRANCH}" ]; then
+              IMAGE_TAG=${GIT_BRANCH}-${IMAGE_TAG} ; fi
+
+              IMAGE_TAG=${BUILD_NUMBER}-${IMAGE_TAG}
+
+              echo "$IMAGE_TAG"
+          # value: |
+          #   # The script is providing tag(s) as output
+          #   # But logs can be written as error stderr
+          #   echo "Providing an image tag with build number" >&2
+          #   # Add a specific tag with cd build number
+          #   echo "1.0.0-${BUILD_NUMBER}"
+        # - name: properties-file
+        #   value: ""
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: source
+          workspace: pipeline-ws
+    
+    - name: va-scan-transaction-service
+      runAfter: 
+        - containerize-transaction-service
+      taskRef:
+        name: icr-check-va-scan
+      params:
+        - name: scan-report-file
+          value: "transaction-service-image-va-report.json"
+        # - name: max-iteration
+        #   value: '5'
+        # - name: sleep-time
+        #   value: '3'
+        - name: fail-on-scanned-issues
+          value: 'false'
+        - name: continuous-delivery-context-secret
+          value: "secure-properties"
+        - name: container-registry-apikey-secret-key
+          value: "apikey"
+        - name: image-url
+          value: $(tasks.containerize-transaction-service.results.image-repository)
+        - name: image-digest
+          value: $(tasks.containerize-transaction-service.results.image-digest)
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+
+    - name: transaction-service-deploy
+      taskRef:
+        name: iks-deploy-to-kubernetes
+      runAfter:
+        - containerize-transaction-service
+      params:
+        - name: shuttle-properties-file
+          value: build.properties
+        - name: cluster-region
+          value: $(params.cluster-region)
+        - name: resource-group
+          value: $(params.resource-group)
+        - name: cluster-name
+          value: $(params.cluster-name)
+        - name: setup-script
+          value: |
+            export CLUSTER_NAMESPACE="$(params.dev-cluster-namespace)"
+            export PATH_TO_DEPLOYMENT="$(params.path-to-transaction-svc-deployment)"
+            export DEPLOYMENT_FILE="$PATH_TO_DEPLOYMENT/$(params.deployment-file)"
+            export IMAGE_NAME=`echo $(tasks.containerize-transaction-service.results.image-repository)| awk -F'/' '{print $3}'`
+            export IMAGE_TAG=$(tasks.containerize-transaction-service.results.image-tags)
+            # pipeline build number is the doi build record id (if any)
+            export SOURCE_BUILD_NUMBER=$BUILD_NUMBER
+            echo "SOURCE_BUILD_NUMBER=$BUILD_NUMBER" >> build.properties
+            # For doi plugin invocation if needed
+            export TOOLCHAIN_ID=$PIPELINE_TOOLCHAIN_ID
+            # Single tag for the image built
+            export IMAGE_TAG=$IMAGE_TAGS
+            # Keep it in build.properties shuttle file
+            echo "IMAGE_TAG=$IMAGE_TAGS" >> build.properties
+        - name: script
+          value: >
+            source <(curl -sSL
+            "https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_and_deploy_kubectl.sh")
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+    
+    - name: containerize-user-service
+      runAfter: 
+        - transaction-service-deploy
+      taskRef:
+        name: icr-containerize
+      params:
+        - name: continuous-delivery-context-secret
+          value: "secure-properties"
+        - name: container-registry-apikey-secret-key
+          value: "apikey"
+        - name: registry-region
+          value: $(params.registry-region)
+        - name: registry-namespace
+          value: $(params.registry-namespace)
+        - name: image-name
+          value: $(params.user-service-image-name)
+        - name: path-to-context
+          value: $(params.path-to-user-service-dockerfile)
+        - name: path-to-dockerfile
+          value: $(params.path-to-user-service-dockerfile)
+        - name: dockerfile
+          value: $(params.user-dockerfile)
+        # - name: additional-tags
+        #   value: latest,1.0.0-$(tasks.git-clone-task.results.git-branch)-$(tasks.git-clone-task.results.git-commit)
+        - name: additional-tags-script
+          value: >
+              # Minting image tag using format:
+              BUILD_NUMBER-BRANCH-COMMIT_ID-TIMESTAMP
+
+              # e.g. 3-master-50da6912-20181123114435
+
+              # (use build number as first segment to allow image tag as a patch
+              release name according to semantic versioning)
+
+              GIT_BRANCH="$(tasks.git-clone-task.results.git-branch)"
+
+              GIT_COMMIT="$(tasks.git-clone-task.results.git-commit)"
+
+              TIMESTAMP=$( date -u "+%Y%m%d%H%M%S")
+
+              IMAGE_TAG=${TIMESTAMP}
+
+              if [ ! -z "${GIT_COMMIT}" ]; then
+                GIT_COMMIT_SHORT=$( echo ${GIT_COMMIT} | head -c 8 )
+                IMAGE_TAG=${GIT_COMMIT_SHORT}-${IMAGE_TAG}
+              fi
+
+              if [ ! -z "${GIT_BRANCH}" ]; then
+              IMAGE_TAG=${GIT_BRANCH}-${IMAGE_TAG} ; fi
+
+              IMAGE_TAG=${BUILD_NUMBER}-${IMAGE_TAG}
+
+              echo "$IMAGE_TAG"
+          # value: |
+          #   # The script is providing tag(s) as output
+          #   # But logs can be written as error stderr
+          #   echo "Providing an image tag with build number" >&2
+          #   # Add a specific tag with cd build number
+          #   echo "1.0.0-${BUILD_NUMBER}"
+        # - name: properties-file
+        #   value: ""
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: source
+          workspace: pipeline-ws
+    
+    - name: va-scan-user-service
+      runAfter: 
+        - containerize-user-service
+      taskRef:
+        name: icr-check-va-scan
+      params:
+        - name: scan-report-file
+          value: "user-service-image-va-report.json"
+        # - name: max-iteration
+        #   value: '5'
+        # - name: sleep-time
+        #   value: '3'
+        - name: fail-on-scanned-issues
+          value: 'false'
+        - name: continuous-delivery-context-secret
+          value: "secure-properties"
+        - name: container-registry-apikey-secret-key
+          value: "apikey"
+        - name: image-url
+          value: $(tasks.containerize-user-service.results.image-repository)
+        - name: image-digest
+          value: $(tasks.containerize-user-service.results.image-digest)
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+
+    - name: user-service-deploy
+      taskRef:
+        name: iks-deploy-to-kubernetes
+      runAfter:
+        - containerize-user-service
+      params:
+        - name: shuttle-properties-file
+          value: build.properties
+        - name: cluster-region
+          value: $(params.cluster-region)
+        - name: resource-group
+          value: $(params.resource-group)
+        - name: cluster-name
+          value: $(params.cluster-name)
+        - name: setup-script
+          value: |
+            export CLUSTER_NAMESPACE="$(params.dev-cluster-namespace)"
+            export PATH_TO_DEPLOYMENT="$(params.path-to-user-svc-deployment)"
+            export DEPLOYMENT_FILE="$PATH_TO_DEPLOYMENT/$(params.deployment-file)"
+            export IMAGE_NAME=`echo $(tasks.containerize-user-service.results.image-repository)| awk -F'/' '{print $3}'`
+            export IMAGE_TAG=$(tasks.containerize-user-service.results.image-tags)
+            # pipeline build number is the doi build record id (if any)
+            export SOURCE_BUILD_NUMBER=$BUILD_NUMBER
+            echo "SOURCE_BUILD_NUMBER=$BUILD_NUMBER" >> build.properties
+            # For doi plugin invocation if needed
+            export TOOLCHAIN_ID=$PIPELINE_TOOLCHAIN_ID
+            # Single tag for the image built
+            export IMAGE_TAG=$IMAGE_TAGS
+            # Keep it in build.properties shuttle file
+            echo "IMAGE_TAG=$IMAGE_TAGS" >> build.properties
+        - name: script
+          value: >
+            source <(curl -sSL
+            "https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_and_deploy_kubectl.sh")
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+
+    - name: containerize-simulator-service
+      runAfter: 
+        - user-service-deploy
+      taskRef:
+        name: icr-containerize
+      params:
+        - name: continuous-delivery-context-secret
+          value: "secure-properties"
+        - name: container-registry-apikey-secret-key
+          value: "apikey"
+        - name: registry-region
+          value: $(params.registry-region)
+        - name: registry-namespace
+          value: $(params.registry-namespace)
+        - name: image-name
+          value: $(params.simulator-service-image-name)
+        - name: path-to-context
+          value: $(params.path-to-dockerfile)
+        - name: path-to-dockerfile
+          value: $(params.path-to-dockerfile)
+        # - name: additional-tags
+        #   value: latest,1.0.0-$(tasks.git-clone-task.results.git-branch)-$(tasks.git-clone-task.results.git-commit)
+        - name: additional-tags-script
+          value: >
+              # Minting image tag using format:
+              BUILD_NUMBER-BRANCH-COMMIT_ID-TIMESTAMP
+
+              # e.g. 3-master-50da6912-20181123114435
+
+              # (use build number as first segment to allow image tag as a patch
+              release name according to semantic versioning)
+
+              GIT_BRANCH="$(tasks.git-clone-task.results.git-branch)"
+
+              GIT_COMMIT="$(tasks.git-clone-task.results.git-commit)"
+
+              TIMESTAMP=$( date -u "+%Y%m%d%H%M%S")
+
+              IMAGE_TAG=${TIMESTAMP}
+
+              if [ ! -z "${GIT_COMMIT}" ]; then
+                GIT_COMMIT_SHORT=$( echo ${GIT_COMMIT} | head -c 8 )
+                IMAGE_TAG=${GIT_COMMIT_SHORT}-${IMAGE_TAG}
+              fi
+
+              if [ ! -z "${GIT_BRANCH}" ]; then
+              IMAGE_TAG=${GIT_BRANCH}-${IMAGE_TAG} ; fi
+
+              IMAGE_TAG=${BUILD_NUMBER}-${IMAGE_TAG}
+
+              echo "$IMAGE_TAG"
+          # value: |
+          #   # The script is providing tag(s) as output
+          #   # But logs can be written as error stderr
+          #   echo "Providing an image tag with build number" >&2
+          #   # Add a specific tag with cd build number
+          #   echo "1.0.0-${BUILD_NUMBER}"
+        # - name: properties-file
+        #   value: ""
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: source
+          workspace: pipeline-ws
+    
+    - name: va-scan-simulator-service
+      runAfter: 
+        - containerize-simulator-service
+      taskRef:
+        name: icr-check-va-scan
+      params:
+        - name: scan-report-file
+          value: "simulator-service-image-va-report.json"
+        # - name: max-iteration
+        #   value: '5'
+        # - name: sleep-time
+        #   value: '3'
+        - name: fail-on-scanned-issues
+          value: 'false'
+        - name: continuous-delivery-context-secret
+          value: "secure-properties"
+        - name: container-registry-apikey-secret-key
+          value: "apikey"
+        - name: image-url
+          value: $(tasks.containerize-simulator-service.results.image-repository)
+        - name: image-digest
+          value: $(tasks.containerize-simulator-service.results.image-digest)
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+
+    - name: simulator-service-deploy
+      taskRef:
+        name: iks-deploy-to-kubernetes
+      runAfter:
+        - containerize-simulator-service
+      params:
+        - name: shuttle-properties-file
+          value: build.properties
+        - name: cluster-region
+          value: $(params.cluster-region)
+        - name: resource-group
+          value: $(params.resource-group)
+        - name: cluster-name
+          value: $(params.cluster-name)
+        - name: setup-script
+          value: |
+            export CLUSTER_NAMESPACE="$(params.dev-cluster-namespace)"
+            export DEPLOYMENT_FILE="$(params.deployment-file)"
+            export IMAGE_NAME=`echo $(tasks.containerize-simulator-service.results.image-repository)| awk -F'/' '{print $3}'`
+            export IMAGE_TAG=$(tasks.containerize-simulator-service.results.image-tags)
+            # pipeline build number is the doi build record id (if any)
+            export SOURCE_BUILD_NUMBER=$BUILD_NUMBER
+            echo "SOURCE_BUILD_NUMBER=$BUILD_NUMBER" >> build.properties
+            # For doi plugin invocation if needed
+            export TOOLCHAIN_ID=$PIPELINE_TOOLCHAIN_ID
+            # Single tag for the image built
+            export IMAGE_TAG=$IMAGE_TAGS
+            # Keep it in build.properties shuttle file
+            echo "IMAGE_TAG=$IMAGE_TAGS" >> build.properties
+        - name: script
+          value: >
+            source <(curl -sSL
+            "https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_and_deploy_kubectl.sh")
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws

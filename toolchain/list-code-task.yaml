@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: list-code
+spec:
+  description: >-
+    ls command output
+  workspaces:
+    - name: response
+      description: to list output
+  params:
+    - name: directory
+      description: git url to clone
+      type: string
+    - name: initImage
+      description: the image used where the git-init binary is
+      type: string
+      default: "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1"
+  steps:
+    - name: list-src
+      image: alpine
+      command:
+        - "ls"
+      args: 
+        - "$(params.directory)"

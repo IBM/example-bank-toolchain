@@ -19,13 +19,13 @@ It also uses the following components of the Financial Services cloud-native bes
 * Show how Security and Compliance Center helps identify vulnerabilities in the container registry.
 * Deploy via IBM Cloud toolchain(tekton pipeline) to OpenShift (ROKS) on VPC.
 
-# Architecture
+## Architecture
 
 The example bank system includes several microservices for handling user authentication and transaction mechanics. 
 
 ![architecture](images/vpc-arch.png)
 
-# Deployment pipeline
+## Deployment pipeline
 
 The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull request) pipeline and a CD (continuous delivery) pipeline.
 
@@ -41,16 +41,16 @@ The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull reques
 - [IBM Vulnerability Advisor](https://cloud.ibm.com/docs/Registry?topic=va-va_index)
 - [Tekton - a Cloud Native CI/CD](https://tekton.dev/)
 
-# Prerequisites
+## Prerequisites
 
 1. GitHub Account
 2. [IBM Cloud](https://cloud.ibm.com) account
-3. IBM Cloud CLI (ibmcloud)
+3. [IBM Cloud CLI - ibmcloud](https://cloud.ibm.com/docs/cli?topic=cli-install-ibmcloud-cli)
 4. Provision a VPC
 5. Provision an OpenShift 4.3 cluster on VPC on [IBM Cloud](https://cloud.ibm.com/docs/openshift?topic=openshift-openshift_tutorial)
 6. Create a service instance of [IBM Cloud Container Registry](https://cloud.ibm.com/registry/catalog)
 
-# Steps
+## Steps
 
 1. Get the code
 2. Create a project in OpenShift Cluster
@@ -62,7 +62,6 @@ The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull reques
 8. Deploy app using Toolchain
 9. Access the application
 
-## Detailed steps
 
 ### 1. Get the code
 

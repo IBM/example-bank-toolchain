@@ -183,7 +183,7 @@ CREATE TABLE
 
 ### 7. Configure pipelines in IBM Cloud Toolchain
 
-As explained above, we will create one toolchain with two pipelines - PR pipeline and CD pipeline.
+As explained above, we will create one toolchain with two pipelines - PR pipeline `pr-pipeline` and CD pipeline `cd-pipeline`.
 
 #### PR Pipeline
 
@@ -197,32 +197,38 @@ Follow the steps explained [here](configure-pipelines.md) to configure both pipe
 
 ### 8. Deployment app using Toolchain
 
-- Go to your source code repo (the forked repository) in your GitHub account
+- Go to your source code repo (the forked repository) in your GitHub account.
 - Create a branch from the main branch. Make some changes in the code and create a pull request(PR).
-- As soon as the PR is created, `pr-pipeline` will get triggered.
+- As soon as the PR is created, `pr-pipeline` will get triggered. Go to your toolchain, click on `pr-pipeline` card and it will take you to the pipeline dashboard as shown below. 
 
   ![pr-pipeline](images/pr-pipeline-run.png)
   
-- Once `pr-pipeline` run is completed, verify the pipeline results which are posted as comments in the PR in the following sections.
+  Click on the name of pipelinerun to check more details about tasks as shown.
+  
+  ![pr-pipeline-tasks](images/pr-pipeline-tasks.png)
+
+- Once pipelinerun is completed, verify the pipeline results which are posted as comments in the PR in the following sections.
 	* IBM Cloud Continuous Delivery Deployment Configuration Analysis
 	* IBM Cloud Continuous Delivery Bill of Materials
 	* IBM Cloud Continuous Delivery Vulnerability Report
 
-CRA sets status to the PR also as shown.
+  CRA sets status to the PR also as shown.
    ![pr-pipeline-status](images/pr-pipeline-status.png)
    
-If it reports some risks/vulnerabilities, do fix those. Fixing of code will result updating the PR and so `pr-pipeline` will get re-triggered.
+  If it reports some risks/vulnerabilities, do fix those. It also tells the severity(low/medium/high) of the risk/vulnerability identified. You can decide if you want to fix all before merging PR. Fixing of code will result updating the PR and so `pr-pipeline` will get re-triggered.
 
 - Once you get all good reports from CRA scan as shown below, you go ahead and merge PR.
   ![pr-pipeline-pass](images/pr-pipeline-pass.png)
 
-- When you merge PR, it is like a commit is pushed to your code repo and then `cd-pipeline` will get triggered to deploy your application.
+- When you merge PR, it is like a commit is pushed to your code repo and then `cd-pipeline` will get triggered to deploy your application. You can check pipelinerun details through dashboard. Go to your toolchain, click on `cd-pipeline` card and it will take you to the pipeline dashboard.
 
   a. this pipeline creates image using the Dockerfile and uploads to IBM Container Registry(ICR).
   
+    ![cd-pipeline-tasks](images/cd-pipeline-tasks.png)
+  
   b. it runs image scan task using vulnerability advisor `va-scan` after uploading image to ICR. Image scan reports can be found either in task's log in Tekton Pipeline Dashboard or in ICR as shown.
   
-  ![va-scan-issues](images/va-scan-issues.png)
+   ![va-scan-issues](images/va-scan-issues.png)
   
   c. the pipeline provided in this repository is configured in such a way that it will not fail if vulnerability advisor reports some issues in images. To change this, update the following setting in pipeline `cd-pipeline.yaml` for image scan related tasks:
   ```
@@ -230,7 +236,7 @@ If it reports some risks/vulnerabilities, do fix those. Fixing of code will resu
     value: 'false'
   ```
   
-  d. and then deploy the services on OpenShift.
+  d. it deploys the services on OpenShift.
   
  On completion of the pipeline-run, all services will be successfully deployed on OpenShift.
 

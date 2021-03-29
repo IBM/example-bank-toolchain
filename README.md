@@ -183,7 +183,7 @@ CREATE TABLE
 
 ### 7. Configure pipelines in IBM Cloud Toolchain
 
-As explained above, we will create one toolchain with two pipelines - PR pipeline and CD pipeline.
+As explained above, we will create one toolchain with two pipelines - PR pipeline `pr-pipeline` and CD pipeline `cd-pipeline`.
 
 #### PR Pipeline
 

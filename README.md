@@ -8,7 +8,7 @@ As people become more aware of data and concerned about their online privacy, re
 
 We have implemented a few important data privacy features inspired by real data privacy regulations:
 
-* Authorization verification with IBM App ID. Read [here]() to understand how App ID is used for user authentication in this code pattern.
+* Authorization verification with IBM App ID. Read [here](user-authentication-using-appid.md) to understand how App ID is used for user authentication in this code pattern.
 
 * Consent for data collection - requiring users to 'opt-in' requirement.
 
@@ -23,13 +23,13 @@ It also uses the following components of the Financial Services cloud-native bes
 
 The example bank system includes several microservices for handling user authentication and transaction mechanics. 
 
-![architecture](vpc-arch.png)
+![architecture](images/vpc-arch.png)
 
 # Deployment pipeline
 
 The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull request) pipeline and a CD (continuous delivery) pipeline.
 
-![cloud diagram](pipeline.png)
+![cloud diagram](images/pipeline.png)
 
 ## Included Components
 
@@ -102,7 +102,7 @@ appid-example-bank-credentials
 
 Save the Management server and API key from above, they will be used in subsequent steps.
 
-> Note: The README.md of the main branch describes the App ID creation and setup in more detail, if you want to learn how the script sets up this service.
+> Note: The README.md of the [example-bank repo](https://github.com/IBM/example-bank) describes the App ID creation and setup in more detail, if you want to learn how the script sets up this service.
 
 ### 5. Create required secrets in OpenShift project
 
@@ -188,13 +188,13 @@ As explained above, we will create one toolchain with two pipelines - PR pipelin
 
 #### PR Pipeline
 
-PR Pipeline gets triggered automatically once a PR is created or updated. In this pipeline CRA is configured to scan the pull request. It discovers your code repo dependencies, such as application packages, container images, or operating system packages. CRA identifies if there are any vulnerabilities that are associated with the dependencies. After the scan it shares deployment configuration analysis, vulnerability report and bill of materials as comments in your pull request. CRA also sets `status` to the PR, so admin can set the gates to block changes that have security problems. 
+PR Pipeline gets triggered automatically once a PR(pull request) is created or updated. In this pipeline, Code Risk Analyzer(CRA) is configured to scan the pull request. It discovers your code repo dependencies, such as application packages, container images, or operating system packages. CRA identifies if there are any vulnerabilities that are associated with the dependencies. After the scan it shares deployment configuration analysis, vulnerability report and bill of materials as comments in your pull request. CRA also sets status to the PR, so admin can set the gates to block changes that have security problems. 
 
 #### CD Pipeline
 
 CD Pipeline gets triggered automatically after merging of PR to deploy the updated app. This pipeline creates the container image using your Dockerfile, push the built image to IBM Cloud Container Registry, scan the image using vulnerability advisor in container registry and then deploy the service using the deployment configuration.
 
-Follow the steps explained [here](https://github.ibm.com/koyfman/fs2021/blob/branch-sm/configure-pipelines.md) to configure both pipelines.
+Follow the steps explained [here](configure-pipelines.md) to configure both pipelines.
 
 ### 8. Deployment app using Toolchain
 
@@ -225,13 +225,13 @@ If it reports some risks/vulnerabilities, do fix those. Fixing of code will resu
   
   ![va-scan-issues](images/va-scan-issues.png)
   
-  c. the pipeline is configured in such a way that it will not fail if vulnerability advisor reports some issues in images. To change this, update the following setting in pipeline `cd-pipeline.yaml` for image scan related tasks:
+  c. the pipeline provided in this repository is configured in such a way that it will not fail if vulnerability advisor reports some issues in images. To change this, update the following setting in pipeline `cd-pipeline.yaml` for image scan related tasks:
   ```
   - name: fail-on-scanned-issues
     value: 'false'
   ```
   
-  d. deploy the services.
+  d. and then deploy the services on OpenShift.
   
  On completion of the pipeline-run, all services will be successfully deployed on OpenShift.
 

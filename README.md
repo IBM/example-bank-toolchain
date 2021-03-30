@@ -1,6 +1,6 @@
-# Deploy application on OpenShift securely using IBM Code Risk Analyzer with IBM Cloud Toolchain 
+# Deploy application on OpenShift securely using IBM Cloud Toolchain into an IBM Cloud for Financial Services environment
 
-In this code pattern, we show how to deploy a microservices based back-end in OpenShift 4.5 using IBM Cloud Toolchain CI/CD service. As part of the release of IBM Cloud for Financial Services (link tbd) support for containerized applications, this code pattern shows how to use IBM Toolchain to create a Tekton pipeline that integrates IBM Code Risk Analyzer (CRA), IBM Container Registry and Vulnerability Advisor. CRA runs an infrastructure and deployment artifact scan against your GitHub repository as part of the an overall DevSecOps system.
+In this code pattern, we show how to deploy a microservices based back-end in OpenShift 4.x using IBM Cloud Toolchain CI/CD service. As part of the release of IBM Cloud for Financial Services (link tbd) support for containerized applications, this code pattern shows how to use IBM Toolchain to create a Tekton pipeline that integrates IBM Code Risk Analyzer (CRA), IBM Container Registry and Vulnerability Advisor. CRA runs an infrastructure and deployment artifact scan against your GitHub repository as part of the an overall DevSecOps system.
 
 ## About Application
 
@@ -44,10 +44,10 @@ The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull reques
 ## Prerequisites
 
 1. GitHub Account
-2. [IBM Cloud](https://cloud.ibm.com) account
-3. [IBM Cloud CLI - ibmcloud](https://cloud.ibm.com/docs/cli?topic=cli-install-ibmcloud-cli)
-4. Provision a VPC
-5. Provision an OpenShift 4.3 cluster on VPC on [IBM Cloud](https://cloud.ibm.com/docs/openshift?topic=openshift-openshift_tutorial)
+2. Create an [IBM Cloud](https://cloud.ibm.com) account
+3. Install [IBM Cloud CLI - ibmcloud](https://cloud.ibm.com/docs/cli?topic=cli-install-ibmcloud-cli)
+4. Provision a [VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-a-vpc-using-the-ibm-cloud-console)
+5. Provision an [OpenShift 4.x cluster on your VPC on IBM Cloud](https://cloud.ibm.com/docs/openshift?topic=openshift-clusters#clusters_vpcg2)
 6. Create a service instance of [IBM Cloud Container Registry](https://cloud.ibm.com/registry/catalog)
 
 ## Steps

@@ -12,10 +12,6 @@ spec:
     - name: directory
       description: git url to clone
       type: string
-    # - name: initImage
-    #   description: the image used where the git-init binary is
-    #   type: string
-    #   default: "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1"
   steps:
     - name: list-src
       image: alpine:3.12

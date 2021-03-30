@@ -7,16 +7,11 @@ spec:
   params:
     - name: repository
       description: The git repo
-    # - name: branch
-    #   description: branch
     - name: apikey
       description: the ibmcloud api key
     - name: pipeline-debug
       description: toggles debug mode for the pipeline
       default: "0"
-    # - name: ibmcloud-api
-    #   description: the ibmcloud api
-    #   default: https://cloud.ibm.com
     - name: registry-region
       description: the container registry region
     - name: registry-namespace
@@ -27,14 +22,6 @@ spec:
       description: the image name
     - name: simulator-service-image-name
       description: the image name
-    # - name: path-to-transaction-service-dockerfile
-    #   default: "."
-    # - name: path-to-user-service-dockerfile
-    #   default: "."
-    # - name: path-to-simulator-service-dockerfile
-    #   default: "."
-    # - name: pipeline-debug
-    #   default: "0"
     - name: dev-region
       description: $(params.dev-region)
     - name: dev-resource-group
@@ -43,11 +30,6 @@ spec:
       description: $(params.cluster-name)
     - name: dev-cluster-namespace
       description: $(params.dev-cluster-namespace)
-    # - name: deployment-file
-    #   description: file containing the kubernetes deployment definition
-    #   default: deployment.yml
-    # - name: tx-dockerfile
-    # - name: user-dockerfile
   resourcetemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim
@@ -95,10 +77,6 @@ spec:
             value: $(params.simulator-service-image-name)
           - name: pipeline-debug
             value: $(params.pipeline-debug)
-          # - name: ibmcloud-api
-          #   value: $(params.ibmcloud-api)
-          # - name: apikey
-          #   value: $(params.apikey)
           - name: cluster-region
             value: $(params.dev-region)
           - name: resource-group
@@ -117,8 +95,6 @@ spec:
             value: bank-app-backend/
           - name: path-to-user-service-dockerfile
             value: bank-app-backend/
-          # - name: path-to-simulator-service-dockerfile
-          #   value: "."
           - name: tx-dockerfile
             value: Dockerfile.tx
           - name: user-dockerfile

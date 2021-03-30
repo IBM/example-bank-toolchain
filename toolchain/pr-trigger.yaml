@@ -7,8 +7,8 @@ spec:
   params:
     - name: repository
       description: The git repo
-    - name: branch
-      description: branch
+    # - name: branch
+    #   description: branch
     - name: apikey
       description: the ibmcloud api key
     - name: pipeline-debug
@@ -33,8 +33,8 @@ spec:
     #   default: "."
     # - name: path-to-simulator-service-dockerfile
     #   default: "."
-    - name: pipeline-debug
-      default: "0"
+    # - name: pipeline-debug
+    #   default: "0"
     - name: dev-region
       description: $(params.dev-region)
     - name: dev-resource-group

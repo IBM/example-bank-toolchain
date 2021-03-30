@@ -14,7 +14,7 @@ We have implemented a few important data privacy features inspired by real data 
 
 It also uses the following components of the Financial Services cloud-native best practices for containerized workloads for DevSecOps toolchain. 
 
-* Scan deployment artifats like Dockerfiles, package manifests, and deployment yamls with IBM Code Risk Analyzer.
+* Scan deployment artifacts like Dockerfiles, package manifests, and deployment yamls with IBM Code Risk Analyzer.
 * Use IBM Container Registry as private registry.
 * Show how Security and Compliance Center helps identify vulnerabilities in the container registry.
 * Deploy via IBM Cloud toolchain(tekton pipeline) to OpenShift (ROKS) on VPC.
@@ -108,7 +108,7 @@ Save the Management server and API key from above, they will be used in subseque
 Run the following scripts using the fields from the App ID step:
 
 ```
- $ ./createsecrets.sh $MGMTEP $APIKEY
+ $ ./createsecrets.sh <Management server> <API Key>
 ```
 
 ### 6. Setup PostgreSQL Database
@@ -207,7 +207,7 @@ Follow the steps explained [here](configure-pipelines.md) to configure both pipe
   
   ![pr-pipeline-tasks](images/pr-pipeline-tasks.png)
 
-- Once pipelinerun is completed, verify the pipeline results which are posted as comments in the PR in the following sections.
+- Once `pipelinerun` is completed, verify the pipeline results which are posted as comments in the PR in the following sections.
 	* IBM Cloud Continuous Delivery Deployment Configuration Analysis
 	* IBM Cloud Continuous Delivery Bill of Materials
 	* IBM Cloud Continuous Delivery Vulnerability Report
@@ -220,7 +220,7 @@ Follow the steps explained [here](configure-pipelines.md) to configure both pipe
 - Once you get all good reports from CRA scan as shown below, you go ahead and merge PR.
   ![pr-pipeline-pass](images/pr-pipeline-pass.png)
 
-- When you merge PR, it is like a commit is pushed to your code repo and then `cd-pipeline` will get triggered to deploy your application. You can check pipelinerun details through dashboard. Go to your toolchain, click on `cd-pipeline` card and it will take you to the pipeline dashboard.
+- When you merge PR, it is like a commit is pushed to your code repo and then `cd-pipeline` will get triggered to deploy your application. You can check `pipelinerun` details through dashboard. Go to your toolchain, click on `cd-pipeline` card and it will take you to the pipeline dashboard.
 
   a. this pipeline creates image using the Dockerfile and uploads to IBM Container Registry(ICR).
   

@@ -18,7 +18,7 @@ spec:
       default: "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1"
   steps:
     - name: list-src
-      image: alpine
+      image: alpine:3.12
       command:
         - "ls"
       args: 

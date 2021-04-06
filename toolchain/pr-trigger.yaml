@@ -7,29 +7,11 @@ spec:
   params:
     - name: repository
       description: The git repo
-    - name: branch
-      description: branch
-    - name: target-branch
-      description: target branch
-    - name: target-commit-id
-      description: target commit id
     - name: apikey
       description: the ibmcloud api key
-    - name: commit-id
-      description: commit id
-    - name: commit-timestamp
-      description: commit timestamp
     - name: pipeline-debug
       description: toggles debug mode for the pipeline
       default: "0"
-    - name: scm-type
-      description: source code type used (github, github-ent, gitlab)
-    - name: project-id
-      description: project id
-      default: ""
-    - name: ibmcloud-api
-      description: the ibmcloud api
-      default: https://cloud.ibm.com
     - name: registry-region
       description: the container registry region
     - name: registry-namespace
@@ -40,14 +22,6 @@ spec:
       description: the image name
     - name: simulator-service-image-name
       description: the image name
-    - name: path-to-transaction-service-dockerfile
-      default: "."
-    - name: path-to-user-service-dockerfile
-      default: "."
-    - name: path-to-simulator-service-dockerfile
-      default: "."
-    - name: pipeline-debug
-      default: "0"
     - name: dev-region
       description: $(params.dev-region)
     - name: dev-resource-group
@@ -56,11 +30,6 @@ spec:
       description: $(params.cluster-name)
     - name: dev-cluster-namespace
       description: $(params.dev-cluster-namespace)
-    - name: deployment-file
-      description: file containing the kubernetes deployment definition
-      default: deployment.yml
-    - name: tx-dockerfile
-    - name: user-dockerfile
   resourcetemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim
@@ -106,41 +75,8 @@ spec:
             value: $(params.user-service-image-name)
           - name: simulator-service-image-name
             value: $(params.simulator-service-image-name)
-          # - name: path-to-dockerfile
-          #   value: bank-app-backend/transaction-service/
-          - name: path-to-transaction-service-dockerfile
-            value: bank-app-backend/
-          - name: path-to-user-service-dockerfile
-            value: bank-app-backend/
-          - name: path-to-simulator-service-dockerfile
-            value: "."
-          - name: tx-dockerfile
-            value: Dockerfile.tx
-          - name: user-dockerfile
-            value: Dockerfile.user
-          - name: directory
-            value: "/workspace/response"
-            # value: $(params.path-to-dockerfile)
-          # - name: target-branch
-          #   value: $(params.target-branch)
-          # - name: commit-id
-          #   value: $(params.commit-id)
-          # - name: commit-timestamp
-          #   value: $(params.commit-timestamp)
           - name: pipeline-debug
             value: $(params.pipeline-debug)
-          # - name: pr-url
-          #   value: $(params.pr-url)
-          # - name: target-commit-id
-          #   value: $(params.target-commit-id)
-          # - name: scm-type
-          #   value: $(params.scm-type)
-          # - name: project-id
-          #   value: $(params.project-id)
-          - name: ibmcloud-api
-            value: $(params.ibmcloud-api)
-          - name: apikey
-            value: $(params.apikey)
           - name: cluster-region
             value: $(params.dev-region)
           - name: resource-group
@@ -155,3 +91,13 @@ spec:
             value: bank-app-backend/transaction-service
           - name: path-to-user-svc-deployment
             value: bank-app-backend/user-service
+          - name: path-to-transaction-service-dockerfile
+            value: bank-app-backend/
+          - name: path-to-user-service-dockerfile
+            value: bank-app-backend/
+          - name: tx-dockerfile
+            value: Dockerfile.tx
+          - name: user-dockerfile
+            value: Dockerfile.user
+          - name: directory
+            value: "/workspace/response"

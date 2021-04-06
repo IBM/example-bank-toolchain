@@ -16,8 +16,6 @@ spec:
       description: the container registry region
     - name: registry-namespace
       description: the container registry namespace
-    # - name: image-name
-    #   description: the image name
     - name: path-to-dockerfile
       default: "."
     - name: pipeline-debug
@@ -105,8 +103,6 @@ spec:
           value: $(params.path-to-transaction-service-dockerfile)
         - name: dockerfile
           value: $(params.tx-dockerfile)
-        # - name: additional-tags
-        #   value: latest,1.0.0-$(tasks.git-clone-task.results.git-branch)-$(tasks.git-clone-task.results.git-commit)
         - name: additional-tags-script
           value: >
               # Minting image tag using format:
@@ -136,14 +132,6 @@ spec:
               IMAGE_TAG=${BUILD_NUMBER}-${IMAGE_TAG}
 
               echo "$IMAGE_TAG"
-          # value: |
-          #   # The script is providing tag(s) as output
-          #   # But logs can be written as error stderr
-          #   echo "Providing an image tag with build number" >&2
-          #   # Add a specific tag with cd build number
-          #   echo "1.0.0-${BUILD_NUMBER}"
-        # - name: properties-file
-        #   value: ""
         - name: pipeline-debug
           value: $(params.pipeline-debug)
       workspaces:
@@ -240,8 +228,6 @@ spec:
           value: $(params.path-to-user-service-dockerfile)
         - name: dockerfile
           value: $(params.user-dockerfile)
-        # - name: additional-tags
-        #   value: latest,1.0.0-$(tasks.git-clone-task.results.git-branch)-$(tasks.git-clone-task.results.git-commit)
         - name: additional-tags-script
           value: >
               # Minting image tag using format:
@@ -271,14 +257,6 @@ spec:
               IMAGE_TAG=${BUILD_NUMBER}-${IMAGE_TAG}
 
               echo "$IMAGE_TAG"
-          # value: |
-          #   # The script is providing tag(s) as output
-          #   # But logs can be written as error stderr
-          #   echo "Providing an image tag with build number" >&2
-          #   # Add a specific tag with cd build number
-          #   echo "1.0.0-${BUILD_NUMBER}"
-        # - name: properties-file
-        #   value: ""
         - name: pipeline-debug
           value: $(params.pipeline-debug)
       workspaces:
@@ -373,8 +351,6 @@ spec:
           value: $(params.path-to-dockerfile)
         - name: path-to-dockerfile
           value: $(params.path-to-dockerfile)
-        # - name: additional-tags
-        #   value: latest,1.0.0-$(tasks.git-clone-task.results.git-branch)-$(tasks.git-clone-task.results.git-commit)
         - name: additional-tags-script
           value: >
               # Minting image tag using format:
@@ -404,14 +380,6 @@ spec:
               IMAGE_TAG=${BUILD_NUMBER}-${IMAGE_TAG}
 
               echo "$IMAGE_TAG"
-          # value: |
-          #   # The script is providing tag(s) as output
-          #   # But logs can be written as error stderr
-          #   echo "Providing an image tag with build number" >&2
-          #   # Add a specific tag with cd build number
-          #   echo "1.0.0-${BUILD_NUMBER}"
-        # - name: properties-file
-        #   value: ""
         - name: pipeline-debug
           value: $(params.pipeline-debug)
       workspaces:

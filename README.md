@@ -27,7 +27,7 @@ The example bank system includes several microservices for handling user authent
 
 ## Deployment pipeline
 
-The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull request) pipeline and a CD (continuous delivery) pipeline.
+The toolchain creates a pull request (PR) pipeline and a continuous delivery (CD) pipeline to conduct the risk assessment and deploy the application to OpenShift, as demonstrated in the following diagram.
 
 ![cloud diagram](images/pipeline.png)
 
@@ -52,15 +52,15 @@ The deployment pipeline uses the IBM Cloud Toolchain to create a PR (pull reques
 
 ## Steps
 
-1. Get the code
-2. Create a project in OpenShift Cluster
-3. Setup a namespace in Container Registry
-4. Configure AppID service
-5. Create required secrets in OpenShift project
-6. Setup PostgreSQL Database
-7. Configure pipelines in IBM Cloud Toolchain
-8. Deploy app using Toolchain
-9. Access the application
+1. [Get the code](#1-get-the-code)
+2. [Create a project in OpenShift Cluster](#2-create-a-project-in-openshift-cluster)
+3. [Setup a namespace in Container Registry](#3-setup-a-namespace-in-container-registry)
+4. [Configure App ID service](#4-configure-app-id-service)
+5. [Create required secrets in OpenShift project](#5-create-required-secrets-in-openshift-project)
+6. [Setup PostgreSQL Database](#6-setup-postgresql-database)
+7. [Configure pipelines in IBM Cloud Toolchain](#7-configure-pipelines-in-ibm-cloud-toolchain)
+8. [Deploy app using Toolchain](#8-deploy-app-using-toolchain)
+9. [Access the application](#9-access-the-application)
 
 
 ### 1. Get the code
@@ -82,7 +82,7 @@ Create a project called `example-bank` in your OpenShift cluster.
 
 If there is no namespace already exists or you want to setup a new, then create a namespace of any name using IBM Cloud Dashboard or using CLI as explained [here](https://cloud.ibm.com/docs/Registry?topic=Registry-getting-started).
 
-### 4. Configure AppID service
+### 4. Configure App ID service
 
 Make sure you are logged in to your IBM Cloud account and that `ibmcloud` CLI is available.
 
@@ -195,7 +195,7 @@ CD Pipeline gets triggered automatically after merging of PR to deploy the updat
 
 Follow the steps explained [here](configure-pipelines.md) to configure both pipelines.
 
-### 8. Deployment app using Toolchain
+### 8. Deploy app using Toolchain
 
 - Go to your source code repo (the forked repository) in your GitHub account.
 - Create a branch from the main branch. Make some changes in the code and create a pull request(PR).

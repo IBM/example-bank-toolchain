@@ -195,7 +195,7 @@ CD Pipeline gets triggered automatically after merging of PR to deploy the updat
 
 Follow the steps explained [here](configure-pipelines.md) to configure both pipelines.
 
-### 8. Deployment app using Toolchain
+### 8. Deploy app using Toolchain
 
 - Go to your source code repo (the forked repository) in your GitHub account.
 - Create a branch from the main branch. Make some changes in the code and create a pull request(PR).

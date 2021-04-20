@@ -20,6 +20,13 @@ spec:
       - name: transaction-service
         image: bank-transaction-service:1.0
         imagePullPolicy: Always
+        resources:
+            requests:
+                memory: "64Mi"
+                cpu: "250m"
+            limits:
+                memory: "128Mi"
+                cpu: "500m"
         ports:
         - name: http-server
           containerPort: 9080

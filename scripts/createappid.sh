@@ -18,7 +18,8 @@ fi
 # end check
 
 
-RG=$(ibmcloud resource groups --default | grep -i ^default | awk '{print $1}')
+RG=DemoBancoPichincha
+#$(ibmcloud resource groups --default | grep -i ^default | awk '{print $1}')
 ibmcloud target -g $RG
 
 ibmcloud resource service-instance appid-example-bank

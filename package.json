@@ -3,19 +3,26 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "start": "node app.js",
     "dev": "DEVMODE=true node app.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "cfenv": "^1.2.2",
+    "cfenv": "^1.2.4",
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
-    "express-http-proxy": "^1.6.0",
-    "ibmcloud-appid": "^6.1.0",
-    "log4js": "^6.1.0",
+    "express-http-proxy": "^1.6.2",
+    "ibmcloud-appid": "^6.1.1",
+    "log4js": "^6.3.0",
     "node-random-name": "^1.0.1",
     "request": "^2.88.2"
+  },
+  "resolutions": {
+    "ejs": "^3.1.6",
+    "underscore": "^1.12.1",
+    "ajv":"6.12.3",
+    "minimist": "^0.2.1"
   },
   "repository": {},
   "engines": {

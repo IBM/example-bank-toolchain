@@ -12,6 +12,14 @@ spec:
         - name: cc-schema-unload
           image: ykoyfman/drop-schema
           imagePullPolicy: Always
+          resources:
+            requests:
+                memory: "64Mi"
+                cpu: "250m"
+            limits:
+                memory: "128mi"
+                cpu: "500m"
+
           envFrom:
             - secretRef:
                 name: bank-db-secret

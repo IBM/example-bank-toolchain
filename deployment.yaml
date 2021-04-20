@@ -35,6 +35,13 @@ spec:
         - image: mobile-simulator-service:1.0
           imagePullPolicy: Always
           name: mobile-simulator
+          resources:
+            requests:
+                memory: "64Mi"
+                cpu: "250m"
+            limits:
+                memory: "128mi"
+                cpu: "500m"
           envFrom:
             - secretRef:
                 name: mobile-simulator-secrets

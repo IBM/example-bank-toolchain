@@ -15,10 +15,12 @@
     "ibmcloud-appid": "^6.1.0",
     "log4js": "^6.1.0",
     "node-random-name": "^1.0.1",
-    "request": "^2.88.2",
-    "underscore":"^1.12.1",
-    "ajv":"^6.12.3",
-    "minimist":"^0.2.1"
+    "request": "^2.88.2"
+  },
+  "resolutions": {
+    "underscore": "^1.12.1",
+    "ajv": "^6.12.3",
+    "minimist": "^0.2.1"
   },
   "repository": {},
   "engines": {

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Check if ibmcloud is in user's account
 ibmcloud_accountname=$(ibmcloud target --output json | jq -j '.account.name')
 
@@ -71,6 +73,7 @@ code=$(echo "${response}" | tail -n1)
 [ "$code" -ne "200" ] && printf "\nFAILED to set cloud directory options\n" && exit 1
 
 printf "\nCreating application\n"
+
 response=$(curl -X POST -w "\n%{http_code}" \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
@@ -81,6 +84,17 @@ response=$(curl -X POST -w "\n%{http_code}" \
 echo $response
 
 code=$(echo "${response}" | tail -n1)
+echo "'$code'"
+if [ $code -eq 409 ]
+then 
+  printf "\nApplication already exists. Not creating one!!\n"
+  printf "\nApp ID instance created and configured"
+  printf "\nManagement server: $mgmturl"
+  printf "\nApi key:           $apikey"
+  printf "\n"
+  exit 1
+fi
+
 [ "$code" -ne "200" ] && printf "\nFAILED to create application\n" && exit 1
 
 clientid=$(echo "${response}" | head -n1 | jq -j '.clientId')

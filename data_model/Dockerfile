@@ -1,3 +1,5 @@
 FROM postgres
 COPY cc_schema.sql /tmp
-CMD /usr/bin/psql postgres://$DB_USER:$DB_PASSWORD@$DB_SERVERNAME:$DB_PORTNUMBER -f /tmp/cc_schema.sql
+COPY example-bank.pem /tmp
+CMD PGPASSWORD=$DB_PASSWORD /usr/bin/psql --host=$DB_SERVERNAME --port=$DB_PORTNUMBER --username=$DB_USER \
+--set=sslmode=verify-full --set=sslrootcert=/tmp/example-bank.pem --file=/tmp/cc_schema.sql

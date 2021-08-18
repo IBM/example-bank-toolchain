@@ -2,11 +2,10 @@
 
 In this code pattern, we show how to deploy a microservices based back-end in OpenShift 4.5 using IBM Cloud Toolchain CI/CD service. As part of the release of [IBM Cloud for Financial Services](https://developer.ibm.com/blogs/developer-introduction-to-ibm-cloud-for-financial-services) support for containerized applications, this code pattern shows how to use IBM Toolchain to create a Tekton pipeline that integrates IBM Code Risk Analyzer (CRA), IBM Container Registry and Vulnerability Advisor. CRA runs an infrastructure and deployment artifact scan against your GitHub repository as part of the an overall DevSecOps system.
 
-In this code pattern, we will use IBM Cloud Hyper Protect DBaaS for PostgresSQL and Hyper Protect Crypot Services to encrypt and secure data. With IBM Cloud® Hyper Protect Crypto Services you can build solutions for you to bring and manage your own encryption in the cloud and use it with IBM Cloud Hyper protect DBaaS to store and access data securely.
+In this code pattern, we will use IBM Cloud Hyper Protect DBaaS for PostgresSQL and Hyper Protect Crypot Services to encrypt and secure data. With IBM Cloud® Hyper Protect Crypto Services you can build solutions for you to bring and manage your own encryption keys in the cloud and use it with IBM Cloud Hyper protect DBaaS to store and access data securely. 
 
-IBM Cloud® Hyper Protect Crypto Services (Hyper Protect Crypto Services for short) is a dedicated key management service and hardware security module (HSM)
-based on IBM Cloud. With this service, you can take the ownership of the cloud HSM to fully manage your encryption keys and to perform cryptographic operations. Hyper Protect Crypto Services is also the only service in the cloud industry that is built on FIPS 140-2 Level 4-certified hardware.
-To read more about Hyper Protect Crypto Services, click [here](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started).
+IBM Cloud® Hyper Protect Crypto Services is a single tenant key management service and hardware security module (HSM) based on IBM Cloud that supports industry standards such as PKCS #11. Its built on IBM LinuxONE technology.
+With this service, client can create and own your master key (KYOK) that is used to control and manage the HSM. Using this IBM can't acess the client keys. Hyper Protect Crypto Services is also the only service in the cloud industry that is built on FIPS 140-2 Level 4-certified hardware.To read more about Hyper Protect Crypto Services, click [here](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started).
 
 Hyper Protect DBaaS for PostgreSQL provides PostgreSQL database clusters in the IBM Cloud. Each Hyper Protect DBaaS database cluster has one primary node and two secondary nodes (replicas that back up the primary).To read more about it, click [here](https://cloud.ibm.com/docs/hyper-protect-dbaas-for-postgresql?topic=hyper-protect-dbaas-for-postgresql-gettingstarted).
 
@@ -39,7 +38,6 @@ The toolchain creates a pull request (PR) pipeline and a continuous delivery (CD
 1. GitHub Account
 2. Create an [IBM Cloud](https://cloud.ibm.com) account
 3. Install [IBM Cloud CLI - ibmcloud](https://cloud.ibm.com/docs/cli?topic=cli-install-ibmcloud-cli)
-4. Install []
 4. Provision a [VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-a-vpc-using-the-ibm-cloud-console)
 5. Provision an [OpenShift 4.x cluster on your VPC on IBM Cloud](https://cloud.ibm.com/docs/openshift?topic=openshift-clusters#clusters_vpcg2)
 6. Create a service instance of [IBM Cloud Container Registry](https://cloud.ibm.com/registry/catalog)

@@ -8,6 +8,8 @@
 // for more info, see: http://expressjs.com
 var express = require('express');
 
+let trigger_pipeline = true;
+
 // cfenv provides access to your Cloud Foundry environment
 // for more info, see: https://www.npmjs.com/package/cfenv
 var cfenv = require('cfenv');

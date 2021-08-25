@@ -62,7 +62,7 @@ Using IBM TKE CLI plugin with IBM cloud CLI clients can create crypto units, add
 
 ## Securing your data in Hyper Protect DBaaS for PostgreSQL
 
-IBM Cloud® Hyper Protect DBaaS for PostgreSQL is a public multi-tenant cloud database as a service. It implements security protections at all levels, including workload isolation, data encryption (Bring-Your-Own-Key or Keep-Your-Own-Key), and identity and administration access control, to ensure that your data is protected in a multi-tenancy environment. 
+[IBM Cloud® Hyper Protect DBaaS for PostgreSQL](https://cloud.ibm.com/docs/hyper-protect-dbaas-for-postgresql?topic=hyper-protect-dbaas-for-postgresql-data-security) is a public multi-tenant cloud database as a service. It implements security protections at all levels, including workload isolation, data encryption (Bring-Your-Own-Key or Keep-Your-Own-Key), and identity and administration access control, to ensure that your data is protected in a multi-tenancy environment. 
 
 Hyper Protect DBaaS for PostgreSQL uses the following methods to protect your data.
 

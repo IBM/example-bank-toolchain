@@ -1,3 +1,5 @@
+#!/bin/bash
+
 MGMTEP=$1
 APIKEY=$2
 

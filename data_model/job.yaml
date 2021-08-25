@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: cc-schema-load
-          image: sanjeevghimire/bank-schema-hpdbaas:1.2
+          image: sanjeevghimire/bank-schema-hpdbaas:1.4
           imagePullPolicy: Always
           envFrom:
             - secretRef:

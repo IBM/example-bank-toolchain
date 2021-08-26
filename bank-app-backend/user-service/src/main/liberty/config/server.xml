@@ -40,7 +40,7 @@
         password="${DB_PASSWORD}"
         ssl="true"
         sslMode="verify-full"
-        sslRootCert="security/example-bank.pem"
+        sslRootCert="${server.config.dir}/resources/security/example-bank.pem"
         />
     </dataSource>
 

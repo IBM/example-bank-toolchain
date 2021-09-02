@@ -1,4 +1,4 @@
-# Deploy a cloud-native application on IBM Cloud for Financial Services using Hyperprotect Services
+# Securing cloud-native application on IBM Cloud for Financial Services using Hyperprotect Services
 
 In this code pattern, we show how to deploy a microservices based back-end in OpenShift 4.5 using IBM Cloud Toolchain CI/CD service. As part of the release of [IBM Cloud for Financial Services](https://developer.ibm.com/blogs/developer-introduction-to-ibm-cloud-for-financial-services) support for containerized applications, this code pattern shows how to use IBM Toolchain to create a Tekton pipeline that integrates IBM Code Risk Analyzer (CRA), IBM Container Registry and Vulnerability Advisor. CRA runs an infrastructure and deployment artifact scan against your GitHub repository as part of the an overall DevSecOps system.
 
@@ -6,6 +6,8 @@ In this code pattern, we will use IBM Cloud Hyper Protect DBaaS for PostgresSQL 
 
 IBM Cloud® Hyper Protect Crypto Services is a single tenant key management service and hardware security module (HSM) based on IBM Cloud that supports industry standards such as PKCS #11. Its built on IBM LinuxONE technology.
 With this service, client can create and own your master key (KYOK) that is used to control and manage the HSM. Using this IBM can't acess the client keys. Hyper Protect Crypto Services is also the only service in the cloud industry that is built on FIPS 140-2 Level 4-certified hardware.To read more about Hyper Protect Crypto Services, click [here](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started).
+
+[IBM Cloud Hyper Protect DBaaS](https://www.ibm.com/cloud/hyper-protect-dbaas) offers enterprise cloud database environments with high availability for sensitive data workloads. LinuxONE technology provides built-in data encryption with excellent vertical scalability and performance. Protect against data breach threats and data manipulation by privileged users.
 
 Hyper Protect DBaaS for PostgreSQL provides PostgreSQL database clusters in the IBM Cloud. Each Hyper Protect DBaaS database cluster has one primary node and two secondary nodes (replicas that back up the primary).To read more about it, click [here](https://cloud.ibm.com/docs/hyper-protect-dbaas-for-postgresql?topic=hyper-protect-dbaas-for-postgresql-gettingstarted).
 

@@ -163,6 +163,16 @@ The new Hyper Protect DBaaS for PostgreSQL service instance uses your Hyper Prot
 
 ![Hyper Protect Dbaas with Crypto Services](images/dbaas-crypto.png)
 
+The Hyper Protect DBaaS for PostgreSQL also gives you a certificate which you can use in your application for end-to-end encryption and security. Make sure to download it and copy it to required locations as below:
+
+```bash
+1. bank-app-backend/transaction-service/src/main/resources/security/
+2. bank-app-backend/user-service/src/main/resources/security/
+3. data_model/
+
+```
+
+
 ### 9. Create required secrets in OpenShift project
 
 Run the following scripts using the fields from the App ID step:

@@ -14,7 +14,6 @@ mvn -pl :transaction-service -am package
 docker build -t transaction-service:1.0-SNAPSHOT transaction-service
 ```
 
-
 ## Configuration
 
 ### Secrets

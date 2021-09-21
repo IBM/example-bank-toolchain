@@ -17,6 +17,12 @@ The example bank system includes several microservices for handling user authent
 
 ![architecture](images/architecture-w-hpdbaas.png)
 
+## Key ceremony
+
+With Hyper Protect Services, you can keep your own key (KYOK). The key ceremony is a process of loading your own master key to your service instance (cloud account). Hyper Protect Crypto Services sets up signature keys for crypto unit administrators during the service initialization process to ensure that the master key parts are loaded to the Hardware Security Module (HSM) without interception. By using the TKE CLI plug-in with the IBM Cloud CLI, you can create crypto units, add signatures, load master key parts, and commit and activate them. The key ceremony process is necessary when you use Hyper Protect Crypto Services to ensure that no one can get full access of the master key, even the crypto unit administrators.
+
+![Key Ceremony](images/key-ceremony1.png)
+
 ## Deployment pipeline
 
 The toolchain creates a pull request (PR) pipeline and a continuous delivery (CD) pipeline to conduct the risk assessment and deploy the application to OpenShift, as demonstrated in the following diagram.

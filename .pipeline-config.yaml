@@ -1,0 +1,102 @@
+version: '1'
+
+setup:
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+
+    echo "Please insert any required pre-build tasks in this stage."
+
+test:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+
+    cd ../"$(load_repo app-repo path)"
+    npm install
+    npm ci
+    npm test
+
+static-scan:
+  dind: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+
+    echo "This stage is a beta stage. If you want to enable it, add 'opt-in-sonar' parameter to your pipeline with any value."
+
+
+containerize:
+  dind: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+
+    if [[ "$PIPELINE_DEBUG" == 1 ]]; then
+      trap env EXIT
+      env
+      set -x
+    fi
+
+    source scripts/build.sh cp-user-service "bank-app-backend/Dockerfile.user"
+    source scripts/build.sh cp-transaction-service "bank-app-backend/Dockerfile.tx"
+    source scripts/build.sh cp-simulator-service "Dockerfile"
+
+
+deploy:
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+
+    if [[ "$PIPELINE_DEBUG" == 1 ]]; then
+      trap env EXIT
+      env
+      set -x
+    fi
+
+    ALL_IMAGES=( "$(cat /config/cp-user-service-image" "$(cat /config/cp-transaction-service-image" "$(cat /config/cp-simulator-service-image" )
+    ALL_DEPLOYS=( "bank-app-backend/user-service/deployment.yaml" "bank-app-backend/transaction-service/deployment.yaml" "deployment.yaml" )
+    for i in {0...2}; do
+      sed -i "s,IMAGE_NAME,${ALL_IMAGES[$i]}," "${ALL_DEPLOYS[$i]}"
+      source scripts/deploy.sh "${ALL_IMAGES[$i]}" "${ALL_DEPLOYS[$i]}"
+    done
+    echo "Application URL: http://${IP_ADDRESS}:${PORT}"
+    echo -n "http://${IP_ADDRESS}:${PORT}" > ../app-url
+
+sign-artifact:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/image-signing:1.0.0@sha256:e9d8e354668ba3d40be2aaee08298d2aa7f0e1c8a1829cca4094ec93830e3e6a
+  script: |
+      #!/usr/bin/env bash
+      STAGE_DIND="true"
+      STAGE_ABORT_ON_FAILURE="false"
+      STAGE_IMAGE_PULL_POLICY="IfNotPresent"
+
+      source scripts/sign_image.sh
+
+acceptance-test:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    npm install
+    npm ci
+    export APP_URL=$(cat ../app-url)
+    npm run acceptance-test
+
+release:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/toolchains/devsecops/compliance-baseimage:2.26.1@sha256:a780174a64474187b01b5e40a1721d8307f02897ac6f3eba2d482d4f4926edf1
+  script: |
+    #!/usr/bin/env bash
+
+    source scripts/release.sh
+
+scan-artifact:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.6@sha256:7f588468622a981f89cf5e1212aaf75fface9da6169b5345ca52ab63d8215907
+  script: |
+    #!/usr/bin/env bash
+
+    source scripts/va_scan.sh

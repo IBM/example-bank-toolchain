@@ -40,7 +40,7 @@ spec:
   selector:
     app: user-service
 ---
-apiVersion: v1
+apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: user-service

@@ -80,7 +80,7 @@ fi
 DOCKER_BUILD_ARGS="-t $IMAGE"
 
 #cDOCKER_BUILDKIT=1 docker build $DOCKER_BUILD_ARGS .
-docker build $DOCKER_BUILD_ARGS -f "$2"
+docker build -t "$IMAGE" -f "$2" .
 docker push "${IMAGE}"
 
 #optional tag
@@ -107,7 +107,7 @@ echo -n "$IMAGE_TAG" > ../image-tags
 echo -n "$IMAGE" > ../image
 
 if which save_artifact >/dev/null; then
-  save_artifact app-image type=image "name=${IMAGE}" "digest=${DIGEST}"
+  save_artifact "$1"-image type=image "name=${IMAGE}" "digest=${DIGEST}"
 fi
 
 echo "$IMAGE" >/config/"$1"-image

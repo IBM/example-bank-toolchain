@@ -39,9 +39,20 @@ containerize:
       set -x
     fi
 
-    source scripts/build.sh cp-user-service "bank-app-backend/Dockerfile.user"
-    source scripts/build.sh cp-transaction-service "bank-app-backend/Dockerfile.tx"
+    # build user image
+    echo "Building User Image..."
+    cd bank-app-backend
+    source ../scripts/build.sh cp-user-service "Dockerfile.user"
+
+    # build transaction image
+    echo "Building Transaction Image..."
+    source ../scripts/build.sh cp-transaction-service "Dockerfile.tx"
+
+    # build simulator image
+    echo "Building Simulator Image..."
+    cd ..
     source scripts/build.sh cp-simulator-service "Dockerfile"
+
 
 
 deploy:
@@ -55,10 +66,16 @@ deploy:
       set -x
     fi
 
-    ALL_IMAGES=( "$(cat /config/cp-user-service-image" "$(cat /config/cp-transaction-service-image" "$(cat /config/cp-simulator-service-image" )
     ALL_DEPLOYS=( "bank-app-backend/user-service/deployment.yaml" "bank-app-backend/transaction-service/deployment.yaml" "deployment.yaml" )
-    for i in {0...2}; do
-      sed -i "s,IMAGE_NAME,${ALL_IMAGES[$i]}," "${ALL_DEPLOYS[$i]}"
+    ALL_IMAGES=()
+    if which list_artifacts >/dev/null; then
+      list_artifacts | while IFS= read -r artifact; do
+        image="$(load_artifact "$artifact" "name")"
+        ALL_IMAGES+=( $image )
+      done
+    for i in {0..2}; do
+      echo "Image: ${ALL_IMAGES[$i]}"
+      echo "Deploy File: ${ALL_DEPLOYS[$i]}"
       source scripts/deploy.sh "${ALL_IMAGES[$i]}" "${ALL_DEPLOYS[$i]}"
     done
     echo "Application URL: http://${IP_ADDRESS}:${PORT}"

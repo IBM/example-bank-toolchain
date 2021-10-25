@@ -31,9 +31,9 @@ spec:
         app: mobile-simulator
     spec:
       containers:
-        - image: IMAGE_NAME
+        - name: mobile-simulator
+          image: IMAGE_NAME
           imagePullPolicy: Always
-          name: mobile-simulator
           envFrom:
             - secretRef:
                 name: mobile-simulator-secrets
@@ -43,7 +43,7 @@ spec:
           ports:
             - containerPort: 8080
 ---
-apiVersion: v1
+apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: mobile-simulator-service

@@ -93,7 +93,7 @@ else
     default
 fi
 #Portieris is not compatible with image name containing both tag and sha. Removing the tag
-IMAGE="${IMAGE%%:*}@${IMAGE#*"@"}"
+#IMAGE="${IMAGE%%:*}@${IMAGE#*"@"}"
 sed -i "s~^\([[:blank:]]*\)image:.*$~\1image: ${IMAGE}~" "$2"
 
 service_name=$(yq r "$2" metadata.name)

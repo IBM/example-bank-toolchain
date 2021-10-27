@@ -66,13 +66,9 @@ deploy:
       set -x
     fi
 
+    ALL_IMAGES=( "$(cat ${WORKSPACE}/cp-user-service-image)" "$(cat ${WORKSPACE}/cp-transaction-service-image)" "$(cat ${WORKSPACE}/cp-simulator-service-image)" )
     ALL_DEPLOYS=( "bank-app-backend/user-service/deployment.yaml" "bank-app-backend/transaction-service/deployment.yaml" "deployment.yaml" )
-    ALL_IMAGES=()
-    if which list_artifacts >/dev/null; then
-      list_artifacts | while IFS= read -r artifact; do
-        image="$(load_artifact "$artifact" "name")"
-        ALL_IMAGES+=( $image )
-      done
+
     for i in {0..2}; do
       echo "Image: ${ALL_IMAGES[$i]}"
       echo "Deploy File: ${ALL_DEPLOYS[$i]}"

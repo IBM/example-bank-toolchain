@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "cfenv": "^1.2.2",
+    "cfenv": "^1.2.4",
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "express-http-proxy": "^1.6.0",

@@ -1,5 +1,7 @@
 # Deploy a cloud-native application on IBM Cloud for Financial Services
 
+**WIP: DevSecOps Template**
+
 In this code pattern, we show how to deploy a microservices based back-end in OpenShift 4.5 using IBM Cloud Toolchain CI/CD service. As part of the release of [IBM Cloud for Financial Services](https://developer.ibm.com/blogs/developer-introduction-to-ibm-cloud-for-financial-services) support for containerized applications, this code pattern shows how to use IBM Toolchain to create a Tekton pipeline that integrates IBM Code Risk Analyzer (CRA), IBM Container Registry and Vulnerability Advisor. CRA runs an infrastructure and deployment artifact scan against your GitHub repository as part of the an overall DevSecOps system.
 
 ## About Application

@@ -38,14 +38,9 @@ get-icr-region() {
 # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 # apt-get update && apt-get install docker-ce-cli
 
-set +e
-REPOSITORY="$(cat /config/repository)"
 set -e
-if [[ "${REPOSITORY}" ]]; then
-  IMAGE_NAME=$(basename $REPOSITORY .git)
-else
-  IMAGE_NAME="$1"
-fi
+
+IMAGE_NAME="$1"
 IMAGE_TAG="$(date +%Y%m%d%H%M%S)-$(cat /config/git-branch)-$(cat /config/git-commit)"
 
 BREAK_GLASS=$(cat /config/break_glass || echo "")
@@ -110,6 +105,6 @@ if which save_artifact >/dev/null; then
   save_artifact "$1"-image type=image "name=${IMAGE}" "digest=${DIGEST}"
 fi
 
-echo "$IMAGE" >/config/"$1"-image
-echo "$DIGEST" >/config/"$1"-digest
-echo "$IMAGE_TAG" >/config/"$1"-tag
+echo "$IMAGE" >${WORKSPACE}/"$1"-image
+echo "$DIGEST" >${WORKSPACE}/"$1"-digest
+echo "$IMAGE_TAG" >${WORKSPACE}/"$1"-tag

@@ -4,15 +4,18 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "dev": "DEVMODE=true node app.js"
+    "dev": "DEVMODE=true node app.js",
+    "acceptance-test": "jest ./acceptance-test",
+    "test": "jest ./test"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "cfenv": "^1.2.2",
+    "cfenv": "^1.2.4",
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "express-http-proxy": "^1.6.0",
     "ibmcloud-appid": "^6.1.0",
+    "jest": "^27.0.1",
     "log4js": "^6.1.0",
     "node-random-name": "^1.0.1",
     "request": "^2.88.2"

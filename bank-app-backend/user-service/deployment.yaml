@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: user-service:1.0
+        image: IMAGE_NAME
         imagePullPolicy: Always
         ports:
         - name: http-server
@@ -39,3 +39,12 @@ spec:
     targetPort: 9080
   selector:
     app: user-service
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: user-service
+spec:
+  to:
+    kind: Service
+    name: user-service

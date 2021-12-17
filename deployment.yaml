@@ -1,18 +1,17 @@
----
-  apiVersion: v1
-  kind: Service
-  metadata:
-    name: mobile-simulator-service
-    labels:
-      app: mobile-simulator
-  spec:
-    ports:
-      - port: 80
-        protocol: TCP
-        targetPort: 8080
-    type: LoadBalancer
-    selector:
-      app: mobile-simulator
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobile-simulator-service
+  labels:
+    app: mobile-simulator
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+  type: LoadBalancer
+  selector:
+    app: mobile-simulator
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,9 +31,9 @@ spec:
         app: mobile-simulator
     spec:
       containers:
-        - image: mobile-simulator-service:1.0
+        - name: mobile-simulator
+          image: IMAGE_NAME
           imagePullPolicy: Always
-          name: mobile-simulator
           envFrom:
             - secretRef:
                 name: mobile-simulator-secrets
@@ -43,7 +42,6 @@ spec:
               value: '8080'
           ports:
             - containerPort: 8080
-
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -53,4 +51,3 @@ spec:
   to:
     kind: Service
     name: mobile-simulator-service
-

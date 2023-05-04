@@ -1,8 +1,10 @@
+## Alterei RG, ibmcloud_accountname, o nome do appid
+
 # Check if ibmcloud is in user's account
 ibmcloud_accountname=$(ibmcloud target --output json | jq -j '.account.name')
 
 ## check if account is in quicklabs (labs.cognitiveclass.ai) or workshop clusters account in DEG
-if [ "$ibmcloud_accountname" = "QuickLabs - IBM Skills Network" ]; then
+if [ "$ibmcloud_accountname" = "IBM CP Tech Sales" ]; then
   echo "\n"
   echo "WARNING: You're logged in as ${ibmcloud_accountname}"
   echo "Please log in again using -- ibmcloud login -u YOUR_IBM_CLOUD_EMAIL"
@@ -18,17 +20,17 @@ fi
 # end check
 
 
-RG=$(ibmcloud resource groups --default | grep -i ^default | awk '{print $1}')
+RG='RG-Rafael'
 ibmcloud target -g $RG
 
-ibmcloud resource service-instance appid-example-bank
+ibmcloud resource service-instance appid-example-bank-rafael
 if [ "$?" -ne "0" ]; then
-  ibmcloud resource service-instance-create appid-example-bank appid lite us-south
+  ibmcloud resource service-instance-create appid-example-bank-rafael appid lite us-south
 fi
 
 ibmcloud resource service-key appid-example-bank-credentials
 if [ "$?" -ne "0" ]; then
-  ibmcloud resource service-key-create appid-example-bank-credentials Writer --instance-name appid-example-bank
+  ibmcloud resource service-key-create appid-example-bank-credentials Writer --instance-name appid-example-bank-rafael
 fi
 
 credentials=$(ibmcloud resource service-key appid-example-bank-credentials)

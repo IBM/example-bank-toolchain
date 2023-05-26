@@ -5,6 +5,7 @@ metadata:
   name: cd-pipeline
 spec:
   params:
+    - name: apikey
     - name: repository
       description: the git repo
     - name: branch
@@ -90,7 +91,7 @@ spec:
         - name: continuous-delivery-context-secret
           value: "secure-properties"
         - name: container-registry-apikey-secret-key
-          value: "apikey"
+          value: $(params.apikey)
         - name: registry-region
           value: $(params.registry-region)
         - name: registry-namespace

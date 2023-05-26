@@ -6,6 +6,7 @@ metadata:
 spec:
   params:
     - name: apikey
+      description: eu coloquei
     - name: repository
       description: the git repo
     - name: branch
@@ -91,7 +92,7 @@ spec:
         - name: continuous-delivery-context-secret
           value: "secure-properties"
         - name: container-registry-apikey-secret-key
-          value: $(params.apikey)
+          value: "apikey"
         - name: registry-region
           value: $(params.registry-region)
         - name: registry-namespace
@@ -453,3 +454,5 @@ spec:
       workspaces:
         - name: artifacts
           workspace: pipeline-ws
+
+          

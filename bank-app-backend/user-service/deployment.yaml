@@ -15,17 +15,17 @@ spec:
         app: user-service
     spec:
       containers:
-      - name: user-service
-        image: user-service:1.0
-        imagePullPolicy: Always
-        ports:
-        - name: http-server
-          containerPort: 9080
-        envFrom:
-        - secretRef:
-            name: bank-db-secret
-        - secretRef:
-            name: bank-oidc-secret
+        - name: user-service
+          image: br.icr.io/rafael-namespace/user-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http-server
+              containerPort: 9080
+          envFrom:
+            - secretRef:
+                name: bank-db-secret
+            - secretRef:
+                name: bank-oidc-secret
 ---
 apiVersion: v1
 kind: Service
@@ -35,7 +35,7 @@ metadata:
     app: user-service
 spec:
   ports:
-  - port: 9080
-    targetPort: 9080
+    - port: 9080
+      targetPort: 9080
   selector:
     app: user-service

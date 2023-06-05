@@ -1,0 +1,10 @@
+no diretório /back-app-backend rodar: 
+docker build -t user-service:1.0-SNAPSHOT .  -f Dockerfile.user
+docker build -t transaction-service:1.0-SNAPSHOT .  -f Dockerfile.tx
+docker images
+
+ibmcloud cr login
+docker tag transaction-service:1.0-SNAPSHOT br.icr.io/rafael-namespace/transaction-service 
+docker push br.icr.io/rafael-namespace/transaction-service 
+
+

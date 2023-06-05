@@ -3,6 +3,7 @@ USER root
 
 RUN mkdir -p /usr/src/app/common
 RUN mkdir -p /usr/src/app/transaction-service
+
 COPY pom.xml /usr/src/app
 ADD common /usr/src/app/common
 ADD transaction-service /usr/src/app/transaction-service
